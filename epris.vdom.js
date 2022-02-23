@@ -11,8 +11,6 @@ const mount = (node, container) => {
 
     const el = document.createElement(tag);
 
-    node.$el = el;
-
     for(const key in props) {
         el.setAttribute(key, props[key]);
     }
@@ -25,13 +23,55 @@ const mount = (node, container) => {
         });
     }
 
+    node.$el = el;
     container.appendChild(el);
 };
 
 const unmount = (node) => {
-    node.$el.parentNode.removeChild(node.$el)
+    node.$el.parentNode.removeChild(node.$el);
 }
 
 const patch = (node, newNode) => {
+    if (node.tag !== newNode.tag) {
+        mount(newNode, node.$el.parentNode);
+        unmount(node);
+    } else {
+        newNode.$el = node.$el;
 
+        if(typeof newNode.children === "string") {
+            newNode.$el.textContent = newNode.children;
+        } else {
+            while(newNode.$el.attributes.length > 0){
+                newNode.$el.removeAttribute(newNode.$el.attributes[0].name);
+            }
+
+            for(const key in newNode.props) {
+                newNode.$el.setAttribute(key, newNode.props[key]);
+            }
+
+            if(typeof node.children === "string") {
+                newNode.$el.textContent = null;
+                newNode.children.forEach(child => {
+                    mount(child, newNode.$el);
+                });
+            } else {
+                const minChildrenLength = Math.min(node.children.length, newNode.children.length);
+                for(let i = 0; i < minChildrenLength; i++) {
+                    patch(node.children[i], newNode.children[i]);
+                }
+
+                if(node.children.length > newNode.children.length) {
+                    node.children.slice(newNode.children.length).forEach(child => {
+                        unmount(child);
+                    })
+                }
+
+                if(node.children.length < newNode.children.length) {
+                    newNode.children.slice(node.children.length).forEach(child => {
+                        mount(child, newNode.$el);
+                    })
+                }
+            }
+        }
+    }
 }
