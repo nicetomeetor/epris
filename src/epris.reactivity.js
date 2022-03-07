@@ -1,6 +1,6 @@
 let activeEffect;
 
-const watchEffect = (fn) => {
+export const watchEffect = (fn) => {
     activeEffect = fn;
     fn();
     activeEffect = null;
@@ -20,7 +20,7 @@ class Dependency {
     }
 }
 
-const reactive = (obj) => {
+export const reactive = (obj) => {
     Object.keys(obj).forEach((key) => {
         const dep = new Dependency();
         let value = obj[key];

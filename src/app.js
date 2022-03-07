@@ -1,10 +1,12 @@
-import _ from 'lodash';
+import {h, patch, mount} from "./epris.vdom";
+import {reactive, watchEffect} from "./epris.reactivity";
 
-function component() {
-    const element = document.createElement('div');
-    element.innerHTML = _.join(['Hello', 'webpack', 'and', 'Epris'], ' ');
-
-    return element;
-}
-
-document.body.appendChild(component());
+export default function Epris() {
+    return {
+        h,
+        patch,
+        mount,
+        reactive,
+        watchEffect
+    };
+};

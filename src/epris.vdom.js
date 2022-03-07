@@ -1,4 +1,4 @@
-const h = (tag, props, children) => {
+export const h = (tag, props, children) => {
     return {
         tag,
         props, 
@@ -6,7 +6,7 @@ const h = (tag, props, children) => {
     };
 };
 
-const mount = (node, container) => {
+export const mount = (node, container) => {
     const {tag, props, children} = node;
 
     const el = document.createElement(tag);
@@ -27,11 +27,11 @@ const mount = (node, container) => {
     container.appendChild(el);
 };
 
-const unmount = (node) => {
+export const unmount = (node) => {
     node.$el.parentNode.removeChild(node.$el);
 }
 
-const patch = (node, newNode) => {
+export const patch = (node, newNode) => {
     if (node.tag !== newNode.tag) {
         mount(newNode, node.$el.parentNode);
         unmount(node);
