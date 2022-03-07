@@ -1,4 +1,4 @@
-const r = (tag, props, children) => {
+const h = (tag, props, children) => {
     return {
         tag,
         props, 
