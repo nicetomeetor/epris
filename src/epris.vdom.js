@@ -1,3 +1,5 @@
+import directiveObject from "./epris.directives"
+
 export const h = (tag, props, children) => {
     return {
         tag,
@@ -7,30 +9,39 @@ export const h = (tag, props, children) => {
 };
 
 export const mount = (node, container) => {
-    const tag = node.tag
-    const props = node.props
-    let children = node.children
+    const tag = node.tag;
+    const props = node.props;
+    let children = node.children;
+    let status;
 
     const el = document.createElement(tag);
 
     for(const key in props) {
-        if (key === "e-text") {
-            children = props[key]
+        if (directiveObject.check(key)) {
+            let obj = directiveObject.make(key, props[key])
+            children = obj.children || children
+            status = !!obj.status
         } else {
             el.setAttribute(key, props[key]);
         }
     }
-
-    if(typeof children == "string") {
-        el.textContent = children;
+    if(!status) {
+        if(typeof children == "string") {
+            el.textContent = children;
+        } else {
+            children.forEach(child => {
+                mount(child, el);
+            });
+        }
     } else {
-        children.forEach(child => {
-            mount(child, el);
-        });
+
     }
 
     node.$el = el;
-    container.appendChild(el);
+
+    if(!status) {
+        container.appendChild(el);
+    }
 };
 
 export const unmount = (node) => {
