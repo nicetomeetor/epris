@@ -1,5 +1,6 @@
 export default (value) => {
     return {
-        children: value
+        key: 'children',
+        value
     }
 }

@@ -9,39 +9,41 @@ export const h = (tag, props, children) => {
 };
 
 export const mount = (node, container) => {
+    const mountObject = {
+        status: false,
+        children: node.children
+    }
+
     const tag = node.tag;
     const props = node.props;
-    let children = node.children;
-    let status;
 
     const el = document.createElement(tag);
 
     for(const key in props) {
-        if (directiveObject.check(key)) {
-            let obj = directiveObject.make(key, props[key])
-            children = obj.children || children
-            status = !!obj.status
+        if(directiveObject.check(key)) {
+            const directive = directiveObject.make(key, props[key]);
+            mountObject[directive.key] = directive.value;
         } else {
             el.setAttribute(key, props[key]);
         }
     }
-    if(!status) {
-        if(typeof children == "string") {
-            el.textContent = children;
-        } else {
-            children.forEach(child => {
+
+    if(mountObject.status) {
+        return
+    }
+
+    if(typeof mountObject.children == "string") {
+        el.textContent = mountObject.children;
+    } else {
+        mountObject
+            .children
+            .forEach(child => {
                 mount(child, el);
             });
         }
-    } else {
-
-    }
 
     node.$el = el;
-
-    if(!status) {
-        container.appendChild(el);
-    }
+    container.appendChild(el);
 };
 
 export const unmount = (node) => {

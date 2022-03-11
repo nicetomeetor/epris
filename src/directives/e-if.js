@@ -1,6 +1,7 @@
 export default (value) => {
     return {
-        status: stringToBoolean(value)
+        key: 'status',
+        value: stringToBoolean(value)
     }
 }
 
