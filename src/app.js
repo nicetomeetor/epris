@@ -1,4 +1,4 @@
-import {h, patch, mount} from "./epris.vdom";
+import {h, mount, patch} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
 
 const parse = (node) => {
@@ -22,16 +22,31 @@ const parse = (node) => {
     }
 }
 
-export default function Epris(
-    el = 'app',
-    data = {},
-) {
+export default function Epris(object) {
+    const el = object.el
+    const data = object.data
+
     const state = reactive(data);
     const node = document.getElementById(el)
-    const newNode = parse(node)
+    let parsedNode;
 
-    mount(newNode, node)
-    node.parentNode.replaceChild(newNode.$el, node)
+    watchEffect(() => {
+        if(!parsedNode) {
+            parsedNode = parse(node)
+            mount(parsedNode, node, state)
+            node.parentNode.replaceChild(parsedNode.$el, node)
+        } else {
+            // mount(parsedNode, node, state)
+            // // const newNode = parse(document.getElementById(el))
+            // patch(parsedNode, newNode, state);
+            // // parsedNode = newNode;
+            // // mount(parsedNode, node, state)
+        }
+    })
+
+    setTimeout(() => {
+        state.text = "2121fds1"
+    }, 2000)
 
     return {
         h,

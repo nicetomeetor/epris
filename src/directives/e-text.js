@@ -1,6 +1,7 @@
-export default (value) => {
+export default (value, state) => {
+    console.log(state[value], value)
     return {
         key: 'children',
-        value
+        value: state[value] || value
     }
 }

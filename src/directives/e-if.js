@@ -1,7 +1,7 @@
-export default (value) => {
+export default (value, state) => {
     return {
         key: 'status',
-        value: stringToBoolean(value)
+        value: state[value] !== undefined ? state[value] : stringToBoolean(value)
     }
 }
 

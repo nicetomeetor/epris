@@ -26,8 +26,8 @@ class DirectivesObject {
         return this.directives.includes(directive);
     }
 
-    make(prop, value) {
-        return directivesFunc[prop](value)
+    make(prop, value, state) {
+        return directivesFunc[prop](value, state)
     }
 }
 
