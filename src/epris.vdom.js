@@ -7,12 +7,18 @@ export const h = (tag, props, children) => {
 };
 
 export const mount = (node, container) => {
-    const {tag, props, children} = node;
+    const tag = node.tag
+    const props = node.props
+    let children = node.children
 
     const el = document.createElement(tag);
 
     for(const key in props) {
-        el.setAttribute(key, props[key]);
+        if (key === "e-text") {
+            children = props[key]
+        } else {
+            el.setAttribute(key, props[key]);
+        }
     }
 
     if(typeof children == "string") {
