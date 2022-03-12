@@ -1,52 +1,34 @@
 import {h, mount, patch} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
-
-const parse = (node) => {
-    const attributes = node.attributes;
-    const n = attributes.length;
-    const props = {};
-    const children = node.children;
-
-    for(let i = 0; i < n; i++) {
-        props[attributes[i].name] = attributes[i].value;
-    }
-
-    if(children.length < 1) {
-        return h(node.tagName, props, node.textContent || "")
-    } else {
-        let nodeChildren = []
-        for(let i = 0; i < children.length; i++) {
-            nodeChildren.push(parse(children[i]))
-        }
-        return h(node.tagName, props, nodeChildren)
-    }
-}
+import directiveObject from "./epris.directives";
 
 export default function Epris(object) {
-    const el = object.el
-    const data = object.data
+    const el = object.el;
+    const data = object.data;
 
     const state = reactive(data);
-    const node = document.getElementById(el)
+    const node = document.getElementById(el);
     let parsedNode;
 
     watchEffect(() => {
         if(!parsedNode) {
-            parsedNode = parse(node)
-            mount(parsedNode, node, state)
-            node.parentNode.replaceChild(parsedNode.$el, node)
+            parsedNode = parse(node);
+            mount(parsedNode, node, state);
+            node.parentNode.replaceChild(parsedNode.$el, node);
         } else {
-            // mount(parsedNode, node, state)
-            // // const newNode = parse(document.getElementById(el))
-            // patch(parsedNode, newNode, state);
-            // // parsedNode = newNode;
-            // // mount(parsedNode, node, state)
+            const newNode = parse(node);
+            patch(parsedNode, newNode, state);
+            parsedNode = newNode;
         }
     })
 
     setTimeout(() => {
-        state.text = "2121fds1"
-    }, 2000)
+        state.status = false;
+    }, 2000);
+
+    setTimeout(() => {
+        state.text = "not state";
+    }, 4000);
 
     return {
         h,
@@ -56,4 +38,51 @@ export default function Epris(object) {
         watchEffect,
         state
     };
+
+    function parse(node) {
+        const attributes = node.attributes;
+        const n = attributes.length;
+        const props = {};
+        let children = node.children;
+
+        const parseObject = {
+            status: false,
+            children: ""
+        };
+
+        for(let i = 0; i < n; i++) {
+            const propName = attributes[i].name;
+            const propValue = attributes[i].value;
+            if(directiveObject.check(propName)) {
+                const directive = directiveObject.make(propName, propValue, state);
+                parseObject[directive.key] = directive.value;
+            } else {
+                props[propName] = propValue;
+            }
+        }
+
+        if(parseObject.status) {
+            return null;
+        }
+
+        if(parseObject.children.length) {
+            children = [];
+        }
+
+        if(children.length < 1) {
+            if (parseObject.children.length) {
+                return h(node.tagName, props, parseObject.children);
+            }
+            return h(node.tagName, props, node.textContent || "");
+        } else {
+            const nodeChildren = [];
+            for(let i = 0; i < children.length; i++) {
+                const parsed = parse(children[i]);
+                if(parsed) {
+                    nodeChildren.push(parsed);
+                }
+            }
+            return h(node.tagName, props, nodeChildren);
+        }
+    }
 };

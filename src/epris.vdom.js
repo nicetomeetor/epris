@@ -1,5 +1,3 @@
-import directiveObject from "./epris.directives"
-
 export const h = (tag, props, children) => {
     return {
         tag,
@@ -8,38 +6,23 @@ export const h = (tag, props, children) => {
     };
 };
 
-export const mount = (node, container, state) => {
-    const mountObject = {
-        status: false,
-        children: node.children
-    }
-
+export const mount = (node, container) => {
     const tag = node.tag;
     const props = node.props;
+    const children = node.children
 
     const el = document.createElement(tag);
 
     for(const key in props) {
-        if(directiveObject.check(key)) {
-            const directive = directiveObject.make(key, props[key], state);
-            mountObject[directive.key] = directive.value;
-            // el.setAttribute(key, directive.value);
-        } else {
-            el.setAttribute(key, props[key]);
-        }
+        el.setAttribute(key, props[key]);
     }
 
-    if(mountObject.status) {
-        return
-    }
-
-    if(typeof mountObject.children == "string") {
-        el.textContent = mountObject.children;
+    if(typeof children == "string") {
+        el.textContent = children;
     } else {
-        mountObject
-            .children
+        children
             .forEach(child => {
-                mount(child, el, state);
+                mount(child, el);
             });
         }
 
@@ -53,14 +36,9 @@ export const unmount = (node) => {
     node.$el.parentNode.removeChild(node.$el);
 }
 
-export const patch = (node, newNode, state) => {
-    const mountObject = {
-        status: false,
-        children: node.children
-    }
-
-    if (node.tag !== newNode.tag) {
-        mount(newNode, node.$el.parentNode, state);
+export const patch = (node, newNode) => {
+    if(node.tag !== newNode.tag) {
+        mount(newNode, node.$el.parentNode);
         unmount(node);
     } else {
         newNode.$el = node.$el;
@@ -73,27 +51,18 @@ export const patch = (node, newNode, state) => {
             }
 
             for(const key in newNode.props) {
-                // newNode.$el.setAttribute(key, newNode.props[key]);
-                // console.log(key)
-                if(directiveObject.check(key)) {
-                    const directive = directiveObject.make(key, newNode.props[key], state);
-                    mountObject[directive.key] = directive.value;
-                    newNode.$el.setAttribute(directive.key, directive.value);
-                    // console.log(key)
-                } else {
-                    newNode.$el.setAttribute(key, newNode.props[key]);
-                }
+                newNode.$el.setAttribute(key, newNode.props[key]);
             }
 
             if(typeof node.children === "string") {
                 newNode.$el.textContent = null;
                 newNode.children.forEach(child => {
-                    mount(child, newNode.$el, state);
+                    mount(child, newNode.$el);
                 });
             } else {
                 const minChildrenLength = Math.min(node.children.length, newNode.children.length);
                 for(let i = 0; i < minChildrenLength; i++) {
-                    patch(node.children[i], newNode.children[i], state);
+                    patch(node.children[i], newNode.children[i]);
                 }
 
                 if(node.children.length > newNode.children.length) {
@@ -104,7 +73,7 @@ export const patch = (node, newNode, state) => {
 
                 if(node.children.length < newNode.children.length) {
                     newNode.children.slice(node.children.length).forEach(child => {
-                        mount(child, newNode.$el, state);
+                        mount(child, newNode.$el);
                     })
                 }
             }
