@@ -2,23 +2,53 @@ import {h, mount, patch} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
 import directiveObject from "./epris.directives";
 
-export default function Epris(object) {
+export default class Epris {
 
-    const el = object.el;
-    const data = object.data;
-    const methods = object.methods;
+    constructor(object) {
+        const el = object.el;
+        const data = object.data;
+        const methods = object.methods;
 
-    for(let [key, value] of Object.entries(methods)) {
-        methods[key] = value.bind(this)
+        this.bindMethods(methods);
+
+        setTimeout(() => {
+            methods.addNumber();
+        }, 1000);
+
+        this.state = reactive(data);
+
+        const node = document.getElementById(el);
+        let parsedNode;
+
+        watchEffect(() => {
+            if(!parsedNode) {
+                parsedNode = this.parse(node);
+                mount(parsedNode, node,this.state);
+                node.parentNode.replaceChild(parsedNode.$el, node);
+            } else {
+                const newNode = this.parse(node);
+                patch(parsedNode, newNode, this.state);
+                parsedNode = newNode;
+            }
+        })
+
+        setTimeout(() => {
+            this.state.status = false;
+        }, 2000);
+
+        setTimeout(() => {
+            this.state.text = "not state";
+        }, 4000);
     }
 
-    setTimeout(() => {
-        methods.addNumber();
-    }, 1000);
+    bindMethods(methods) {
+        Object.entries(methods)
+            .forEach(([name, func]) => {
+                methods[name] = func.bind(this)
+            })
+    }
 
-    this.state = reactive(data);
-
-    const parse = (node) => {
+    parse(node) {
         const attributes = node.attributes;
         const n = attributes.length;
         const props = {};
@@ -56,7 +86,7 @@ export default function Epris(object) {
         } else {
             const nodeChildren = [];
             for(let i = 0; i < children.length; i++) {
-                const parsed = parse(children[i]);
+                const parsed = this.parse(children[i]);
                 if(parsed) {
                     nodeChildren.push(parsed);
                 }
@@ -64,41 +94,4 @@ export default function Epris(object) {
             return h(node.tagName, props, nodeChildren);
         }
     }
-
-
-    const node = document.getElementById(el);
-    let parsedNode;
-
-    watchEffect(() => {
-        if(!parsedNode) {
-            parsedNode = parse(node);
-            mount(parsedNode, node,this.state);
-            node.parentNode.replaceChild(parsedNode.$el, node);
-        } else {
-            const newNode = parse(node);
-            patch(parsedNode, newNode, this.state);
-            parsedNode = newNode;
-        }
-    })
-
-    setTimeout(() => {
-        this.state.status = false;
-    }, 2000);
-
-    setTimeout(() => {
-        this.state.text = "not state";
-    }, 4000);
-
-
-
-    return {
-        h,
-        patch,
-        mount,
-        reactive,
-        watchEffect,
-        state: this.state
-    };
-
-
 };
