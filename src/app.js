@@ -3,43 +3,22 @@ import {reactive, watchEffect} from "./epris.reactivity";
 import directiveObject from "./epris.directives";
 
 export default function Epris(object) {
+
     const el = object.el;
     const data = object.data;
+    const methods = object.methods;
 
-    const state = reactive(data);
-    const node = document.getElementById(el);
-    let parsedNode;
-
-    watchEffect(() => {
-        if(!parsedNode) {
-            parsedNode = parse(node);
-            mount(parsedNode, node, state);
-            node.parentNode.replaceChild(parsedNode.$el, node);
-        } else {
-            const newNode = parse(node);
-            patch(parsedNode, newNode, state);
-            parsedNode = newNode;
-        }
-    })
+    for(let [key, value] of Object.entries(methods)) {
+        methods[key] = value.bind(this)
+    }
 
     setTimeout(() => {
-        state.status = false;
-    }, 2000);
+        methods.addNumber();
+    }, 1000);
 
-    setTimeout(() => {
-        state.text = "not state";
-    }, 4000);
+    this.state = reactive(data);
 
-    return {
-        h,
-        patch,
-        mount,
-        reactive,
-        watchEffect,
-        state
-    };
-
-    function parse(node) {
+    const parse = (node) => {
         const attributes = node.attributes;
         const n = attributes.length;
         const props = {};
@@ -54,7 +33,7 @@ export default function Epris(object) {
             const propName = attributes[i].name;
             const propValue = attributes[i].value;
             if(directiveObject.check(propName)) {
-                const directive = directiveObject.make(propName, propValue, state);
+                const directive = directiveObject.make(propName, propValue, this.state);
                 parseObject[directive.key] = directive.value;
             } else {
                 props[propName] = propValue;
@@ -85,4 +64,41 @@ export default function Epris(object) {
             return h(node.tagName, props, nodeChildren);
         }
     }
+
+
+    const node = document.getElementById(el);
+    let parsedNode;
+
+    watchEffect(() => {
+        if(!parsedNode) {
+            parsedNode = parse(node);
+            mount(parsedNode, node,this.state);
+            node.parentNode.replaceChild(parsedNode.$el, node);
+        } else {
+            const newNode = parse(node);
+            patch(parsedNode, newNode, this.state);
+            parsedNode = newNode;
+        }
+    })
+
+    setTimeout(() => {
+        this.state.status = false;
+    }, 2000);
+
+    setTimeout(() => {
+        this.state.text = "not state";
+    }, 4000);
+
+
+
+    return {
+        h,
+        patch,
+        mount,
+        reactive,
+        watchEffect,
+        state: this.state
+    };
+
+
 };
