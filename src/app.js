@@ -1,6 +1,7 @@
 import {h, mount, patch} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
 import directiveObject from "./epris.directives";
+import eventsObject from "./epris.events"
 
 export default class Epris {
 
@@ -9,11 +10,13 @@ export default class Epris {
         const data = object.data;
         const methods = object.methods;
 
-        this.bindMethods(methods);
+        this.methods = this.bindMethods(methods);
 
-        setTimeout(() => {
-            methods.addNumber();
-        }, 1000);
+
+
+        // setTimeout(() => {
+        //     methods.addNumber();
+        // }, 1000);
 
         this.state = reactive(data);
 
@@ -23,29 +26,30 @@ export default class Epris {
         watchEffect(() => {
             if(!parsedNode) {
                 parsedNode = this.parse(node);
-                mount(parsedNode, node,this.state);
+                mount(parsedNode, node);
                 node.parentNode.replaceChild(parsedNode.$el, node);
             } else {
                 const newNode = this.parse(node);
-                patch(parsedNode, newNode, this.state);
+                patch(parsedNode, newNode);
                 parsedNode = newNode;
             }
         })
 
-        setTimeout(() => {
-            this.state.status = false;
-        }, 2000);
+        // setTimeout(() => {
+        //     this.state.status = false;
+        // }, 2000);
 
-        setTimeout(() => {
-            this.state.text = "not state";
-        }, 4000);
+        // setTimeout(() => {
+        //     this.state.text = "not state";
+        // }, 4000);
     }
 
     bindMethods(methods) {
         Object.entries(methods)
             .forEach(([name, func]) => {
                 methods[name] = func.bind(this)
-            })
+            });
+        return methods;
     }
 
     parse(node) {
@@ -62,7 +66,18 @@ export default class Epris {
         for(let i = 0; i < n; i++) {
             const propName = attributes[i].name;
             const propValue = attributes[i].value;
-            if(directiveObject.check(propName)) {
+            if(eventsObject.check(propName)) {
+                if(!Object.keys(props).includes('on')) {
+                    props.on = {};
+                }
+                const event = propName.slice(5, propName.length)
+                Object.defineProperty(props.on, event, {
+                    value: this.methods[propValue],
+                    writable: true,
+                    enumerable: true,
+                    configurable: true
+                });
+            } else if(directiveObject.check(propName)) {
                 const directive = directiveObject.make(propName, propValue, this.state);
                 parseObject[directive.key] = directive.value;
             } else {

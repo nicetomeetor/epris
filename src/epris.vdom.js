@@ -11,7 +11,18 @@ export const mount = (node, container) => {
     const props = node.props;
     const children = node.children
 
+    const on = props.on
+
     const el = document.createElement(tag);
+
+    if(on) {
+        Object
+            .entries(on)
+            .forEach(([event, handler]) => {
+                el.addEventListener(event, handler)
+        });
+        delete props.on
+    }
 
     for(const key in props) {
         el.setAttribute(key, props[key]);
@@ -37,6 +48,13 @@ export const unmount = (node) => {
 }
 
 export const patch = (node, newNode) => {
+    // Todo: Fix
+    const on = newNode.props.on;
+    if(on) {
+        delete newNode.props.on;
+    }
+
+
     if(node.tag !== newNode.tag) {
         mount(newNode, node.$el.parentNode);
         unmount(node);
