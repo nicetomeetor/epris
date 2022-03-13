@@ -59,7 +59,7 @@ export default class Epris {
         let children = node.children;
 
         const parseObject = {
-            status: false,
+            status: true,
             children: ""
         };
 
@@ -67,12 +67,20 @@ export default class Epris {
             const propName = attributes[i].name;
             const propValue = attributes[i].value;
             if(eventsObject.check(propName)) {
-                if(!Object.keys(props).includes('on')) {
-                    props.on = {};
+                const event = propName.slice(5, propName.length);
+                const handler = this.methods[propValue];
+
+                if(!props.on) {
+                    Object.defineProperty(props, 'on', {
+                        value: {},
+                        writable: true,
+                        enumerable: false,
+                        configurable: true
+                    });
                 }
-                const event = propName.slice(5, propName.length)
+
                 Object.defineProperty(props.on, event, {
-                    value: this.methods[propValue],
+                    value: handler,
                     writable: true,
                     enumerable: true,
                     configurable: true
@@ -85,8 +93,9 @@ export default class Epris {
             }
         }
 
-        if(parseObject.status) {
-            return null;
+        // console.log(parseObject.status)
+        if(!parseObject.status) {
+            return [];
         }
 
         if(parseObject.children.length) {
@@ -102,7 +111,8 @@ export default class Epris {
             const nodeChildren = [];
             for(let i = 0; i < children.length; i++) {
                 const parsed = this.parse(children[i]);
-                if(parsed) {
+
+                if(!Array.isArray(parsed)) {
                     nodeChildren.push(parsed);
                 }
             }

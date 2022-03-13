@@ -1,7 +1,8 @@
 export default (value, state) => {
+    console.log(state[value])
     return {
         key: 'status',
-        value: state[value] !== undefined ? state[value] : stringToBoolean(value)
+        value: state[value] !== undefined ? !state[value] : !stringToBoolean(value)
     }
 }
 

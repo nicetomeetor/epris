@@ -1,3 +1,5 @@
+import events from "./epris.events";
+
 export const h = (tag, props, children) => {
     return {
         tag,
@@ -16,12 +18,7 @@ export const mount = (node, container) => {
     const el = document.createElement(tag);
 
     if(on) {
-        Object
-            .entries(on)
-            .forEach(([event, handler]) => {
-                el.addEventListener(event, handler)
-        });
-        delete props.on
+        events.addEvents(el, on);
     }
 
     for(const key in props) {
@@ -48,13 +45,6 @@ export const unmount = (node) => {
 }
 
 export const patch = (node, newNode) => {
-    // Todo: Fix
-    const on = newNode.props.on;
-    if(on) {
-        delete newNode.props.on;
-    }
-
-
     if(node.tag !== newNode.tag) {
         mount(newNode, node.$el.parentNode);
         unmount(node);
