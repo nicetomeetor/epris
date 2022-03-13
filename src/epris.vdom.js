@@ -11,9 +11,9 @@ export const h = (tag, props, children) => {
 export const mount = (node, container) => {
     const tag = node.tag;
     const props = node.props;
-    const children = node.children
+    const children = node.children;
 
-    const on = props.on
+    const on = props.on;
 
     const el = document.createElement(tag);
 
@@ -37,7 +37,7 @@ export const mount = (node, container) => {
     node.$el = el;
     container.appendChild(el);
 
-    return node
+    return node;
 };
 
 export const unmount = (node) => {

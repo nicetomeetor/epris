@@ -17,19 +17,26 @@ class EprisEvents {
             });
     }
 
-    make(props, event, handler) {
-        // if(!Object.keys(props).includes('on')) {
-        //     props.on = {};
-        // }
-        //
-        // Object.defineProperty(props.on, event, {
-        //     value: handler,
-        //     writable: true,
-        //     enumerable: false,
-        //     configurable: true
-        // });
+    make(props, propName, handler) {
+        const event = propName.slice(prefix.length, propName.length);
 
-        return props.on
+        if(!props.on) {
+            Object.defineProperty(props, 'on', {
+                value: {},
+                writable: true,
+                enumerable: false,
+                configurable: true
+            });
+        }
+
+        Object.defineProperty(props.on, event, {
+            value: handler,
+            writable: true,
+            enumerable: true,
+            configurable: true
+        });
+
+        return props.on;
     }
 }
 

@@ -1,7 +1,7 @@
 import {h, mount, patch} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
 import directiveObject from "./epris.directives";
-import eventsObject from "./epris.events"
+import eventsObject from "./epris.events";
 
 export default class Epris {
 
@@ -11,12 +11,6 @@ export default class Epris {
         const methods = object.methods;
 
         this.methods = this.bindMethods(methods);
-
-
-
-        // setTimeout(() => {
-        //     methods.addNumber();
-        // }, 1000);
 
         this.state = reactive(data);
 
@@ -33,15 +27,7 @@ export default class Epris {
                 patch(parsedNode, newNode);
                 parsedNode = newNode;
             }
-        })
-
-        // setTimeout(() => {
-        //     this.state.status = false;
-        // }, 2000);
-
-        // setTimeout(() => {
-        //     this.state.text = "not state";
-        // }, 4000);
+        });
     }
 
     bindMethods(methods) {
@@ -66,34 +52,20 @@ export default class Epris {
         for(let i = 0; i < n; i++) {
             const propName = attributes[i].name;
             const propValue = attributes[i].value;
+
             if(eventsObject.check(propName)) {
-                const event = propName.slice(5, propName.length);
                 const handler = this.methods[propValue];
+                props.on = eventsObject.make(props, propName, handler);
 
-                if(!props.on) {
-                    Object.defineProperty(props, 'on', {
-                        value: {},
-                        writable: true,
-                        enumerable: false,
-                        configurable: true
-                    });
-                }
-
-                Object.defineProperty(props.on, event, {
-                    value: handler,
-                    writable: true,
-                    enumerable: true,
-                    configurable: true
-                });
             } else if(directiveObject.check(propName)) {
                 const directive = directiveObject.make(propName, propValue, this.state);
                 parseObject[directive.key] = directive.value;
+
             } else {
                 props[propName] = propValue;
             }
         }
 
-        // console.log(parseObject.status)
         if(!parseObject.status) {
             return [];
         }
