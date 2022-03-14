@@ -1,4 +1,6 @@
 import events from "./epris.events";
+import eventsObject from "./epris.events";
+import directiveObject from "./epris.directives";
 
 export const h = (tag, props, children) => {
     return {
@@ -86,5 +88,59 @@ export const patch = (node, newNode) => {
                 }
             }
         }
+    }
+}
+
+export const parse = (node, state, methods) => {
+    const attributes = node.attributes;
+    const n = attributes.length;
+    const props = {};
+    let children = node.children;
+
+    const parseObject = {
+        status: true,
+        children: ""
+    };
+
+    for(let i = 0; i < n; i++) {
+        const propName = attributes[i].name;
+        const propValue = attributes[i].value;
+
+        if(eventsObject.check(propName)) {
+            const handler = methods[propValue];
+            props.on = eventsObject.make(props, propName, handler);
+
+        } else if(directiveObject.check(propName)) {
+            const directive = directiveObject.make(propName, propValue, state);
+            parseObject[directive.key] = directive.value;
+
+        } else {
+            props[propName] = propValue;
+        }
+    }
+
+    if(!parseObject.status) {
+        return [];
+    }
+
+    if(parseObject.children.length) {
+        children = [];
+    }
+
+    if(children.length < 1) {
+        if (parseObject.children.length) {
+            return h(node.tagName, props, parseObject.children);
+        }
+        return h(node.tagName, props, node.textContent || "");
+    } else {
+        const nodeChildren = [];
+        for(let i = 0; i < children.length; i++) {
+            const parsed = parse(children[i], state, methods);
+
+            if(!Array.isArray(parsed)) {
+                nodeChildren.push(parsed);
+            }
+        }
+        return h(node.tagName, props, nodeChildren);
     }
 }
