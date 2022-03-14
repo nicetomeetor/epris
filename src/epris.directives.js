@@ -1,20 +1,23 @@
-const prefix = "e-";
-
 import eText from "./directives/e-text";
 import eIf from "./directives/e-if";
+import eFor from "./directives/e-for";
+
+const prefix = "e-";
 
 const addPrefix = (directive) => {
     return prefix + directive
 };
 
  const directives = [
-    "text",
-    "if"
+     'text',
+     'if',
+     'for',
 ];
 
 const directivesFunc = {
     "e-text": eText,
-    "e-if": eIf
+    "e-if": eIf,
+    'e-for': eFor,
 };
 
 class DirectivesObject {
@@ -26,8 +29,8 @@ class DirectivesObject {
         return this.directives.includes(directive);
     }
 
-    make(prop, value, state) {
-        return directivesFunc[prop](value, state);
+    make(prop, value, state, node) {
+        return directivesFunc[prop](value, state, node);
     }
 }
 
