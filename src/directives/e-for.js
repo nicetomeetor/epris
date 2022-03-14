@@ -1,9 +1,25 @@
-import {h} from "../epris.vdom";
+import {parse} from "../epris.vdom";
 
-export default (value, state, node) => {
-    console.log(node)
+export default (value, state, methods, node) => {
+    const children = []
+    const split = node.getAttribute("e-for").split(' ')
+    node.removeAttribute("e-for");
+
+    const key = split[0]
+
+    state[split[2]].forEach(element => {
+        const forState = {}
+        Object.defineProperty(forState, key, {
+            value: element,
+            writable: true,
+            enumerable: true,
+            configurable: true,
+        })
+        const parsed = parse(node, forState, methods)
+        children.push(parsed)
+    })
     return {
         key: 'children',
-        value: "for_--_"
+        value: children
     }
 }

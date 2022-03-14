@@ -111,7 +111,7 @@ export const parse = (node, state, methods) => {
             props.on = eventsObject.make(props, propName, handler);
 
         } else if(directiveObject.check(propName)) {
-            const directive = directiveObject.make(propName, propValue, state);
+            const directive = directiveObject.make(propName, propValue, state, methods, node.cloneNode(true));
             parseObject[directive.key] = directive.value;
 
         } else {
