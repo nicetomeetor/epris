@@ -1,8 +1,8 @@
 let activeEffect;
 
-export const watchEffect = (fn) => {
-    activeEffect = fn;
-    fn();
+export const watchEffect = (f) => {
+    activeEffect = f;
+    f();
     activeEffect = null;
 }
 
@@ -20,23 +20,25 @@ class Dependency {
     }
 }
 
-export const reactive = (obj) => {
-    Object.keys(obj).forEach((key) => {
-        const dep = new Dependency();
-        let value = obj[key];
+export const reactive = (object) => {
+    for(const property in object) {
+        object[property] = reactive(object[property])
+    }
 
-        Object.defineProperty(obj, key, {
-            get() {
-                dep.depend();
-                return value;
-            },
-            set(newValue) {
-                if (newValue !== value) {
-                    value = newValue;
-                    dep.notify();
-                }
+    const dep = new Dependency();
+
+    return new Proxy(object, {
+        get(target, property) {
+            dep.depend();
+            return target[property];
+        },
+        set(target, property, value) {
+            if(target[property] !== value) {
+                dep.notify();
+                target[property] = reactive(value);
             }
-        })
+
+            return true;
+        },
     });
-    return obj;
-}
+};
