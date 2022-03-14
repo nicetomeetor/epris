@@ -12,7 +12,9 @@ class Dependency {
     }
 
     depend() {
-        if(activeEffect) this.subscribers.add(activeEffect);
+        if(activeEffect) {
+            this.subscribers.add(activeEffect);
+        }
     }
 
     notify() {
@@ -21,8 +23,12 @@ class Dependency {
 }
 
 export const reactive = (object) => {
-    for(const property in object) {
-        object[property] = reactive(object[property])
+    if(object === null || typeof object !== 'object') {
+        return object;
+    }
+
+    for (const property in object) {
+        object[property] = reactive(object[property]);
     }
 
     const dep = new Dependency();
@@ -32,10 +38,11 @@ export const reactive = (object) => {
             dep.depend();
             return target[property];
         },
+
         set(target, property, value) {
             if(target[property] !== value) {
-                dep.notify();
                 target[property] = reactive(value);
+                dep.notify();
             }
 
             return true;
