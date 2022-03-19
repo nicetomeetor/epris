@@ -1,8 +1,17 @@
 import {mount, patch, parse} from "./epris.vdom";
 import {reactive, watchEffect} from "./epris.reactivity";
 
+interface EprisObject {
+    el: string,
+    data: {[key: string]:  any},
+    methods: {[key: string]:  Function}
+}
+
 export default class Epris {
-    constructor(object) {
+    private readonly methods: {[key: string]:  Function};
+    private readonly $state: {[key: string]:  any};
+
+    constructor(object: EprisObject) {
         const el = object.el;
         const data = object.data;
         const methods = object.methods;
@@ -11,18 +20,18 @@ export default class Epris {
 
         this.$state = reactive(data);
 
-        // this.defineProperties(this.$state)
+        this.defineProperties(this.$state)
         this.defineProperties(this.methods)
 
         console.log(this)
 
         const node = document.getElementById(el);
-        let parsedNode;
+        let parsedNode: any;
 
         watchEffect(() => {
             if(!parsedNode) {
                 parsedNode = parse(node, this.$state, this.methods);
-                mount(parsedNode, node, this.methods);
+                mount(parsedNode, node);
                 node.parentNode.replaceChild(parsedNode.$el, node);
             } else {
                 const newNode = parse(node, this.$state, this.methods);
@@ -32,7 +41,7 @@ export default class Epris {
         });
     }
 
-    bindMethods(methods) {
+    bindMethods(methods: {[key: string]:  Function}) {
         Object
             .entries(methods)
             .forEach(([name, func]) => {
@@ -41,7 +50,7 @@ export default class Epris {
         return methods;
     }
 
-    defineProperties(data) {
+    defineProperties(data: {[key: string]:  any}) {
         Object
             .entries(data)
             .forEach(([key, value]) => {
