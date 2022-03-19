@@ -1,18 +1,20 @@
-let activeEffect;
+let activeEffect: Function;
 
-export const watchEffect = (f) => {
+export const watchEffect = (f: Function) => {
     activeEffect = f;
     f();
     activeEffect = null;
-}
+};
 
 class Dependency {
+    private subscribers: Set<Function>;
+
     constructor() {
         this.subscribers = new Set();
     }
 
     depend() {
-        if(activeEffect) {
+        if (activeEffect) {
             this.subscribers.add(activeEffect);
         }
     }
@@ -22,8 +24,8 @@ class Dependency {
     }
 }
 
-export const reactive = (object) => {
-    if(object === null || typeof object !== 'object') {
+export const reactive = (object: { [key: string]: any }): Object => {
+    if (object === null || typeof object !== 'object') {
         return object;
     }
 
@@ -36,12 +38,12 @@ export const reactive = (object) => {
     return new Proxy(object, {
         get(target, property) {
             dep.depend();
-            return target[property];
+            return target[property as keyof typeof target];
         },
 
         set(target, property, value) {
-            if(target[property] !== value) {
-                target[property] = reactive(value);
+            if (target[property as keyof typeof target] !== value) {
+                target[property as keyof typeof target] = reactive(value);
                 dep.notify();
             }
 

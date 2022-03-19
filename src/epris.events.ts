@@ -1,23 +1,24 @@
 const prefix = "e-on:";
 
 class EprisEvents {
-    check(event) {
+    check(event: string) {
         return event.includes(prefix);
     }
 
-    addEvent(el, event, method) {
-        el.addEventListener(event, method);
+    addEvent(el: HTMLElement, event: string, action: EventListener) {
+        el.addEventListener(event, action);
     }
 
-    addEvents(el, events) {
+    addEvents(el: HTMLElement, events: any) {
         Object
             .entries(events)
             .forEach(([event, handler]) => {
-                this.addEvent(el, event, handler)
+                // @ts-ignore
+                return this.addEvent(el, event, handler);
             });
     }
 
-    make(props, propName, handler) {
+    make(props: any, propName: string, handler: EventListener) {
         const event = propName.slice(prefix.length, propName.length);
 
         if(!props.on) {

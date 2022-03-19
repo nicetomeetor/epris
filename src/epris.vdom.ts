@@ -1,16 +1,28 @@
-import events from "./epris.events";
-import eventsObject from "./epris.events";
-import directiveObject from "./epris.directives";
+import events from './epris.events';
+import eventsObject from './epris.events';
+import directiveObject from './epris.directives';
+import { Actions } from './epris.types';
 
-export const h = (tag, props, children) => {
+type h = {
+    tag: string,
+    props: { [key: string]: string },
+    children: Array<h> | string,
+    $el?: HTMLElement
+};
+
+export const h = (
+    tag: string,
+    props: { [key: string]: string },
+    children: Array<h> | string,
+) => {
     return {
         tag,
-        props, 
-        children
+        props,
+        children,
     };
 };
 
-export const mount = (node, container) => {
+export const mount = (node: h, container: HTMLElement) => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
@@ -19,22 +31,22 @@ export const mount = (node, container) => {
 
     const el = document.createElement(tag);
 
-    if(on) {
+    if (on) {
         events.addEvents(el, on);
     }
 
-    for(const key in props) {
+    for (const key in props) {
         el.setAttribute(key, props[key]);
     }
 
-    if(typeof children == "string") {
+    if (typeof children == 'string') {
         el.textContent = children;
     } else {
         children
             .forEach(child => {
                 mount(child, el);
             });
-        }
+    }
 
     node.$el = el;
     container.appendChild(el);
@@ -42,75 +54,80 @@ export const mount = (node, container) => {
     return node;
 };
 
-export const unmount = (node) => {
+export const unmount = (node: h) => {
     node.$el.parentNode.removeChild(node.$el);
-}
+};
 
-export const patch = (node, newNode) => {
-    if(node.tag !== newNode.tag) {
-        mount(newNode, node.$el.parentNode);
+export const patch = (node: h, newNode: h) => {
+    if (node.tag !== newNode.tag) {
+        mount(newNode, node.$el.parentElement);
         unmount(node);
     } else {
         newNode.$el = node.$el;
 
-        if(typeof newNode.children === "string") {
+        if (typeof newNode.children === 'string') {
             newNode.$el.textContent = newNode.children;
         } else {
-            while(newNode.$el.attributes.length > 0){
+            while (newNode.$el.attributes.length > 0) {
                 newNode.$el.removeAttribute(newNode.$el.attributes[0].name);
             }
 
-            for(const key in newNode.props) {
+            for (const key in newNode.props) {
                 newNode.$el.setAttribute(key, newNode.props[key]);
             }
 
-            if(typeof node.children === "string") {
+            if (typeof node.children === 'string') {
                 newNode.$el.textContent = null;
                 newNode.children.forEach(child => {
                     mount(child, newNode.$el);
                 });
             } else {
                 const minChildrenLength = Math.min(node.children.length, newNode.children.length);
-                for(let i = 0; i < minChildrenLength; i++) {
+                for (let i = 0; i < minChildrenLength; i++) {
                     patch(node.children[i], newNode.children[i]);
                 }
 
-                if(node.children.length > newNode.children.length) {
+                if (node.children.length > newNode.children.length) {
                     node.children.slice(newNode.children.length).forEach(child => {
                         unmount(child);
-                    })
+                    });
                 }
 
-                if(node.children.length < newNode.children.length) {
+                if (node.children.length < newNode.children.length) {
                     newNode.children.slice(node.children.length).forEach(child => {
                         mount(child, newNode.$el);
-                    })
+                    });
                 }
             }
         }
     }
-}
+};
 
-export const parse = (node, state, methods) => {
+export const parse = (
+    node: HTMLElement,
+    state: {[key: string]: any},
+    methods: Actions
+): h => {
     const attributes = node.attributes;
     const n = attributes.length;
-    const props = {};
-    let children = node.children;
+    const props: any = {};
 
-    const parseObject = {
+    let children: HTMLCollection = node.children;
+
+    const parseObject: {[key: string]: any} = {
         status: true,
-        children: ""
+        children: '',
     };
 
-    for(let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
         const propValue = attributes[i].value;
 
-        if(eventsObject.check(propName)) {
-            const handler = methods[propValue];
+        if (eventsObject.check(propName)) {
+            const handler: EventListener = methods[propValue];
             props.on = eventsObject.make(props, propName, handler);
 
-        } else if(directiveObject.check(propName)) {
+        } else if (directiveObject.check(propName)) {
             const directive = directiveObject.make(propName, propValue, state, methods, node.cloneNode(true));
             parseObject[directive.key] = directive.value;
 
@@ -119,28 +136,29 @@ export const parse = (node, state, methods) => {
         }
     }
 
-    if(!parseObject.status) {
-        return [];
-    }
+    // if (!parseObject.status) {
+    //     return [] as;
+    // }
 
-    if(parseObject.children.length) {
+    if (parseObject.children.length) {
+        // @ts-ignore
         children = [];
     }
 
-    if(children.length < 1) {
+    if (children.length < 1) {
         if (parseObject.children.length) {
             return h(node.tagName, props, parseObject.children);
         }
-        return h(node.tagName, props, node.textContent || "");
+        return h(node.tagName, props, node.textContent || '');
     } else {
         const nodeChildren = [];
-        for(let i = 0; i < children.length; i++) {
-            const parsed = parse(children[i], state, methods);
+        for (let i = 0; i < children.length; i++) {
+            const parsed = parse(children[i] as HTMLElement, state, methods);
 
-            if(!Array.isArray(parsed)) {
+            if (!Array.isArray(parsed)) {
                 nodeChildren.push(parsed);
             }
         }
         return h(node.tagName, props, nodeChildren);
     }
-}
+};
