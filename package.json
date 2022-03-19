@@ -4,9 +4,8 @@
   "description": "\"\"",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "webpack-dev-server --config webpack.config.js",
-    "start": "webpack serve --config webpack.config.js"
+    "serve": "webpack-dev-server --config webpack.config.ts",
+    "start": "webpack serve --config webpack.config.ts"
   },
   "repository": {
     "type": "git",
@@ -19,15 +18,16 @@
   },
   "homepage": "https://github.com/nicetomeetor/epris#readme",
   "devDependencies": {
-    "html-webpack-plugin": "^5.5.0",
+    "@types/node": "^17.0.21",
+    "@types/webpack": "^5.28.0",
+    "@types/webpack-dev-server": "^4.7.2",
     "prettier": "2.6.0",
     "ts-loader": "^9.2.8",
+    "ts-node": "^10.7.0",
     "typescript": "^4.6.2",
     "webpack": "^5.70.0",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.4",
-    "webpack-livereload-plugin": "^3.0.2",
-    "write-file-webpack-plugin": "^4.5.1"
+    "webpack-dev-server": "^4.7.4"
   },
   "dependencies": {
     "lodash": "^4.17.21"
