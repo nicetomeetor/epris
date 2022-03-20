@@ -1,54 +1,55 @@
 import { mount, patch, parse } from './epris.vdom';
 import { reactive, watchEffect } from './epris.reactivity';
-import { Actions, State } from './epris.types';
+import { Actions, Getters, State } from './epris.types';
 
 interface EprisObject {
     el: string,
-    data: { [key: string]: any },
-    methods: Actions
+    state: State,
+    actions: Actions
+    getters: Getters
 }
 
 export default class Epris {
-    private readonly methods: Actions;
-    private readonly $state: State;
+    private $actions: Actions;
+    private $state: State;
+    private $getters: any;
 
     constructor(object: EprisObject) {
         const el = object.el;
-        const data = object.data;
-        const methods = object.methods;
+        const state = object.state;
+        const actions = object.actions;
+        const getters = object.getters;
 
-        this.methods = this.bindMethods(methods);
+        this.$actions = this.bindActions(actions);
 
-        this.$state = reactive(data);
+        this.$state = reactive(state);
 
         this.defineProperties(this.$state);
-        this.defineProperties(this.methods);
-
-        console.log(this);
+        this.defineProperties(this.$actions);
 
         const node = document.getElementById(el);
         let parsedNode: any;
 
         watchEffect(() => {
             if (!parsedNode) {
-                parsedNode = parse(node, this.$state, this.methods);
+                parsedNode = parse(node, this.$state, this.$actions);
                 mount(parsedNode, node);
                 node.parentNode.replaceChild(parsedNode.$el, node);
             } else {
-                const newNode = parse(node, this.$state, this.methods);
+                const newNode = parse(node, this.$state, this.$actions);
                 patch(parsedNode, newNode);
                 parsedNode = newNode;
             }
         });
     }
 
-    bindMethods(methods: Actions) {
+    bindActions(actions: Actions) {
         Object
-            .entries(methods)
+            .entries(actions)
             .forEach(([name, func]) => {
-                methods[name] = func.bind(this);
+                actions[name] = func.bind(this);
             });
-        return methods;
+        return actions;
     }
 
     defineProperties(data: { [key: string]: any }) {
