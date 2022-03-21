@@ -13,6 +13,7 @@ export default class Epris {
     $actions: Actions;
     $state: State;
     $getters: any;
+    $el:  HTMLElement;
 
     constructor(object: EprisObject) {
         const el = object.el;
@@ -20,48 +21,57 @@ export default class Epris {
         const actions = object.actions;
         const getters = object.getters;
 
-        this.$actions = this.bindActions(actions);
+        this.$actions = this.defineActionProperties(actions);
         this.$state = reactive(state);
+        this.$getters = getters
+        this.$el = document.querySelector(el);
 
-        this.defineProperties(this.$state);
-        this.defineProperties(this.$actions);
+        this.defineStateProperties(this.$state);
 
-        const node: HTMLElement = document.querySelector(el);
         let parsedNode: h;
 
         watchEffect(() => {
             if (!parsedNode) {
-                parsedNode = parse(node, this.$state, this.$actions);
-                mount(parsedNode, node);
-                node.parentNode.replaceChild(parsedNode.$el, node);
+                parsedNode = parse(this.$el, this.$state, this.$actions);
+                mount(parsedNode, this.$el);
+                this.$el.parentNode.replaceChild(parsedNode.$el, this.$el);
             } else {
-                const newNode = parse(node, this.$state, this.$actions);
+                const newNode = parse(this.$el, this.$state, this.$actions);
                 patch(parsedNode, newNode);
                 parsedNode = newNode;
             }
         });
-        console.log(parsedNode)
     }
 
-    private bindActions(actions: Actions) {
+    private defineActionProperties(actions: Actions) {
         Object
             .entries(actions)
             .forEach(([name, func]) => {
                 actions[name] = func.bind(this);
+                Object
+                    .defineProperty(this, name, {
+                        enumerable: true,
+                        value: func,
+                    });
             });
+
         return actions;
     }
 
-    private defineProperties(data: State | Actions) {
+    private defineStateProperties(data: State) {
         Object
-            .entries(data)
-            .forEach(([key, value]) => {
-                Object.defineProperty(this, key, {
-                    enumerable: true,
-                    configurable: true,
-                    writable: true,
-                    value,
-                });
+            .keys(data)
+            .forEach((key) => {
+                Object
+                    .defineProperty(this, key, {
+                        enumerable: true,
+                        get() {
+                            return this.$state[key];
+                        },
+                        set(newValue) {
+                            this.$state[key] = newValue;
+                        },
+                    });
             });
     }
 };
