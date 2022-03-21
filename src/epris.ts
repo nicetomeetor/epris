@@ -1,6 +1,6 @@
 import { mount, patch, parse } from './epris.vdom';
 import { reactive, watchEffect } from './epris.reactivity';
-import { Actions, Getters, State } from './epris.types';
+import { Actions, Getters, h, State } from './epris.types';
 
 interface EprisObject {
     el: string,
@@ -10,9 +10,9 @@ interface EprisObject {
 }
 
 export default class Epris {
-    private $actions: Actions;
-    private $state: State;
-    private $getters: any;
+    $actions: Actions;
+    $state: State;
+    $getters: any;
 
     constructor(object: EprisObject) {
         const el = object.el;
@@ -21,14 +21,13 @@ export default class Epris {
         const getters = object.getters;
 
         this.$actions = this.bindActions(actions);
-
         this.$state = reactive(state);
 
         this.defineProperties(this.$state);
         this.defineProperties(this.$actions);
 
-        const node = document.getElementById(el);
-        let parsedNode: any;
+        const node: HTMLElement = document.querySelector(el);
+        let parsedNode: h;
 
         watchEffect(() => {
             if (!parsedNode) {
@@ -41,9 +40,10 @@ export default class Epris {
                 parsedNode = newNode;
             }
         });
+        console.log(parsedNode)
     }
 
-    bindActions(actions: Actions) {
+    private bindActions(actions: Actions) {
         Object
             .entries(actions)
             .forEach(([name, func]) => {
@@ -52,14 +52,14 @@ export default class Epris {
         return actions;
     }
 
-    defineProperties(data: { [key: string]: any }) {
+    private defineProperties(data: State | Actions) {
         Object
             .entries(data)
             .forEach(([key, value]) => {
                 Object.defineProperty(this, key, {
-                    enumerable: false,
-                    configurable: false,
-                    writable: false,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true,
                     value,
                 });
             });

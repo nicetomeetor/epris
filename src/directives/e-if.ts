@@ -3,7 +3,7 @@ import { State } from '../epris.types';
 export default (value: string, state: State) => {
     return {
         key: 'status',
-        value: state[value] !== undefined ? !state[value] : !stringToBoolean(value)
+        value: state[value] !== undefined ? state[value] : !stringToBoolean(value)
     }
 }
 

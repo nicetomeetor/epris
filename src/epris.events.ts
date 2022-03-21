@@ -1,4 +1,6 @@
-const prefix = "e-on:";
+import config from './epris.config';
+
+const prefix = config.prefix + 'on:';
 
 class EprisEvents {
     check(event: string) {
@@ -9,11 +11,10 @@ class EprisEvents {
         el.addEventListener(event, action);
     }
 
-    addEvents(el: HTMLElement, events: any) {
+    addEvents(el: HTMLElement, events: {[key: string]: EventListener}) {
         Object
             .entries(events)
             .forEach(([event, handler]) => {
-                // @ts-ignore
                 return this.addEvent(el, event, handler);
             });
     }
@@ -21,12 +22,12 @@ class EprisEvents {
     make(props: any, propName: string, handler: EventListener) {
         const event = propName.slice(prefix.length, propName.length);
 
-        if(!props.on) {
+        if (!props.on) {
             Object.defineProperty(props, 'on', {
                 value: {},
                 writable: true,
                 enumerable: false,
-                configurable: true
+                configurable: true,
             });
         }
 
@@ -34,7 +35,7 @@ class EprisEvents {
             value: handler,
             writable: true,
             enumerable: true,
-            configurable: true
+            configurable: true,
         });
 
         return props.on;

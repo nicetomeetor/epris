@@ -27,7 +27,7 @@ export const mount = (node: h, container: HTMLElement) => {
     const props = node.props;
     const children = node.children;
 
-    const on = props.on;
+    const on: any = props.on;
 
     const el = document.createElement(tag);
 
@@ -107,12 +107,12 @@ export const parse = (
     node: HTMLElement,
     state: {[key: string]: any},
     methods: Actions
-): h => {
+): h | null => {
     const attributes = node.attributes;
     const n = attributes.length;
-    const props: any = {};
+    const props: {[key: string]: any} = {};
 
-    let children: HTMLCollection = node.children;
+    let children: Array<any> = Array.from(node.children)
 
     const parseObject: {[key: string]: any} = {
         status: true,
@@ -136,26 +136,26 @@ export const parse = (
         }
     }
 
-    // if (!parseObject.status) {
-    //     return [] as;
-    // }
+    if (!parseObject.status) {
+        return null;
+    }
 
-    if (parseObject.children.length) {
-        // @ts-ignore
+    if (parseObject.children.length > 0) {
         children = [];
     }
 
     if (children.length < 1) {
         if (parseObject.children.length) {
             return h(node.tagName, props, parseObject.children);
+        } else {
+            return h(node.tagName, props, node.textContent || '');
         }
-        return h(node.tagName, props, node.textContent || '');
     } else {
         const nodeChildren = [];
         for (let i = 0; i < children.length; i++) {
             const parsed = parse(children[i] as HTMLElement, state, methods);
 
-            if (!Array.isArray(parsed)) {
+            if (parsed) {
                 nodeChildren.push(parsed);
             }
         }
