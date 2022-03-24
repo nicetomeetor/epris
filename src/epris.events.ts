@@ -19,9 +19,8 @@ class EprisEvents {
             });
     }
 
-    make(props: any, propName: string, handler: EventListener) {
+    make(props: any, propName: string, handler: EventListener, args: any[]) {
         const event = propName.slice(prefix.length, propName.length);
-
         if (!props.on) {
             Object.defineProperty(props, 'on', {
                 value: {},
@@ -32,7 +31,7 @@ class EprisEvents {
         }
 
         Object.defineProperty(props.on, event, {
-            value: handler,
+            value: handler.bind(null, ...args),
             writable: true,
             enumerable: true,
             configurable: true,

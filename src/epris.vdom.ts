@@ -124,8 +124,14 @@ export const parse = (
         const propValue = attributes[i].value;
 
         if (eventsObject.check(propName)) {
-            const handler: EventListener = methods[propValue];
-            props.on = eventsObject.make(props, propName, handler);
+            const regExp = /(.*)\((.*)\)/
+            const values = propValue.match(regExp)
+            const method = values[1]
+            const handler: EventListener = methods[method];
+            const args = values[2]
+                .split(',')
+                .map(arg => state[arg])
+            props.on = eventsObject.make(props, propName, handler, args);
 
         } else if (directiveObject.check(propName)) {
             const directive = directiveObject.make(propName, propValue, state, methods, node.cloneNode(true));
