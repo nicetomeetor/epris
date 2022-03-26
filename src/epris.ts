@@ -1,6 +1,7 @@
-import { mount, patch, parse } from './epris.vdom';
+import { mount, patch } from './epris.vdom';
+import { parse } from './epris.parser'
 import { reactive, watchEffect } from './epris.reactivity';
-import { Actions, Getters, h, State } from './epris.types';
+import { Actions, Getters, State, VirtualNode } from './epris.types';
 
 interface EprisObject {
     el: string,
@@ -28,7 +29,7 @@ export default class Epris {
 
         this.defineStateProperties(this.$state);
 
-        let parsedNode: h;
+        let parsedNode: VirtualNode;
 
         watchEffect(() => {
             if (!parsedNode) {

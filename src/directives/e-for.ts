@@ -1,5 +1,5 @@
-import { parse } from '../epris.vdom';
-import { State, Actions, h } from '../epris.types';
+import { parse } from '../epris.parser';
+import { State, Actions, VirtualNode } from '../epris.types';
 
 export default (
     value: string,
@@ -7,7 +7,7 @@ export default (
     methods: Actions,
     node: HTMLElement,
 ) => {
-    const children: Array<h> = [];
+    const children: Array<VirtualNode> = [];
     const split = node.getAttribute('e-for').split(' ');
     node.removeAttribute('e-for');
 
