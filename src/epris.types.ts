@@ -14,9 +14,9 @@ export type Getters = {
     [key: string]: Function
 }
 
-export type h = {
+export type VirtualNode = {
     tag: string,
     props: { [key: string]: string },
-    children: Array<h> | string,
+    children: Array<VirtualNode> | string,
     $el?: HTMLElement
 };

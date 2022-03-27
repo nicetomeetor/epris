@@ -1,19 +1,10 @@
 import events from './epris.events';
-import eventsObject from './epris.events';
-import directiveObject from './epris.directives';
-import { Actions } from './epris.types';
-
-type h = {
-    tag: string,
-    props: { [key: string]: string },
-    children: Array<h> | string,
-    $el?: HTMLElement
-};
+import { VirtualNode } from './epris.types';
 
 export const h = (
     tag: string,
     props: { [key: string]: string },
-    children: Array<h> | string,
+    children: Array<VirtualNode> | string,
 ) => {
     return {
         tag,
@@ -22,7 +13,7 @@ export const h = (
     };
 };
 
-export const mount = (node: h, container: HTMLElement) => {
+export const mount = (node: VirtualNode, container: HTMLElement) => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
@@ -54,11 +45,11 @@ export const mount = (node: h, container: HTMLElement) => {
     return node;
 };
 
-export const unmount = (node: h) => {
+export const unmount = (node: VirtualNode) => {
     node.$el.parentNode.removeChild(node.$el);
 };
 
-export const patch = (node: h, newNode: h) => {
+export const patch = (node: VirtualNode, newNode: VirtualNode) => {
     if (node.tag !== newNode.tag) {
         mount(newNode, node.$el.parentElement);
         unmount(node);
@@ -100,65 +91,5 @@ export const patch = (node: h, newNode: h) => {
                 }
             }
         }
-    }
-};
-
-export const parse = (
-    node: HTMLElement,
-    state: {[key: string]: any},
-    methods: Actions
-): h | null => {
-    const attributes = node.attributes;
-    const n = attributes.length;
-    const props: {[key: string]: any} = {};
-
-    let children: Array<any> = Array.from(node.children)
-
-    const parseObject: {[key: string]: any} = {
-        status: true,
-        children: '',
-    };
-
-    for (let i = 0; i < n; i++) {
-        const propName = attributes[i].name;
-        const propValue = attributes[i].value;
-
-        if (eventsObject.check(propName)) {
-            const handler: EventListener = methods[propValue];
-            props.on = eventsObject.make(props, propName, handler);
-
-        } else if (directiveObject.check(propName)) {
-            const directive = directiveObject.make(propName, propValue, state, methods, node.cloneNode(true));
-            parseObject[directive.key] = directive.value;
-
-        } else {
-            props[propName] = propValue;
-        }
-    }
-
-    if (!parseObject.status) {
-        return null;
-    }
-
-    if (parseObject.children.length > 0) {
-        children = [];
-    }
-
-    if (children.length < 1) {
-        if (parseObject.children.length) {
-            return h(node.tagName, props, parseObject.children);
-        } else {
-            return h(node.tagName, props, node.textContent || '');
-        }
-    } else {
-        const nodeChildren = [];
-        for (let i = 0; i < children.length; i++) {
-            const parsed = parse(children[i] as HTMLElement, state, methods);
-
-            if (parsed) {
-                nodeChildren.push(parsed);
-            }
-        }
-        return h(node.tagName, props, nodeChildren);
     }
 };
