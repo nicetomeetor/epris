@@ -3,18 +3,66 @@ import eventsObject from './epris.events';
 import directiveObject from './epris.directives';
 import { h } from './epris.vdom';
 
+const funRegExp = /(.*)\((.*)\)/;
+// const argRegExp = /(.*)(\.?)(.*)/;
+
+const chainDataKeys = (elements: any, state: any) => {
+    return elements.map((element: any) => {
+        const data = element.data;
+        const keys = element.keys;
+        let chainedData = state[data];
+        keys.forEach((key: string) => {
+            chainedData = chainedData[key];
+        });
+        return chainedData;
+    })
+};
+
+const parseArgs = (args: Array<Array<string>>) => {
+    const elements: Array<any> = [];
+    args.forEach((arg: Array<string>) => {
+        const data = arg[0];
+        const keys = arg.slice(1);
+        elements.push(
+            {
+                keys,
+                data,
+            },
+        );
+    });
+
+    return elements;
+};
+
+const parseEvent = (propValue: string) => {
+    const values = propValue.match(funRegExp);
+    const method = values[1];
+    const args = values[2]
+        .split(',')
+        .map((arg: string) => arg.split('.'));
+
+    return {
+        method,
+        args,
+    };
+};
+
+const parseDirective = () => {
+
+};
+
 export const parse = (
     node: HTMLElement,
-    state: {[key: string]: any},
-    methods: Actions
+    state: { [key: string]: any },
+    methods: Actions,
 ): VirtualNode | null => {
     const attributes = node.attributes;
     const n = attributes.length;
-    const props: {[key: string]: any} = {};
+    const props: { [key: string]: any } = {};
 
-    let children: Array<any> = Array.from(node.children)
+    let children: Array<any> = Array.from(node.children);
 
-    const parseObject: {[key: string]: any} = {
+    const parseObject: { [key: string]: any } = {
         status: true,
         children: '',
     };
@@ -24,13 +72,9 @@ export const parse = (
         const propValue = attributes[i].value;
 
         if (eventsObject.check(propName)) {
-            const regExp = /(.*)\((.*)\)/
-            const values = propValue.match(regExp)
-            const method = values[1]
-            const handler: EventListener = methods[method];
-            const args = values[2]
-                .split(',')
-                .map(arg => state[arg])
+            const parsedEvent = parseEvent(propValue);
+            const handler: EventListener = methods[parsedEvent.method]
+            const args = chainDataKeys(parseArgs(parsedEvent.args), state)
             props.on = eventsObject.make(props, propName, handler, args);
 
         } else if (directiveObject.check(propName)) {
