@@ -13,7 +13,6 @@ export default (
 
     const key = split[0];
     const arrayKey = split[2];
-
     state[arrayKey].forEach((element: any) => {
         const forState = {};
 

@@ -1,9 +1,12 @@
 import { State } from '../epris.types';
+import { parseDirective, chainElementKeys} from '../epris.parser';
 
 export default (value: string, state: State) => {
+    const parsedValue = chainElementKeys(parseDirective(value), state)
     return {
         key: 'status',
-        value: state[value] !== undefined ? state[value] : !stringToBoolean(value)
+        // value: state[value] !== undefined ? state[value] : !stringToBoolean(value)
+        value: parsedValue
     }
 }
 
