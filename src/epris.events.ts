@@ -19,25 +19,17 @@ class EprisEvents {
             });
     }
 
-    make(props: any, propName: string, handler: EventListener, args: any[]) {
+    make(on: {[key: string]: EventListener}, propName: string, handler: EventListener, args: any[]) {
         const event = propName.slice(prefix.length, propName.length);
-        if (!props.on) {
-            Object.defineProperty(props, 'on', {
-                value: {},
-                writable: true,
-                enumerable: false,
-                configurable: true,
-            });
-        }
 
-        Object.defineProperty(props.on, event, {
+        Object.defineProperty(on, event, {
             value: handler.bind(null, ...args),
             writable: true,
             enumerable: true,
             configurable: true,
         });
 
-        return props.on;
+        return on;
     }
 }
 

@@ -64,6 +64,7 @@ export const parse = (
 ): VirtualNode | null => {
     const attributes = Array.from(node.attributes);
     const props: { [key: string]: any } = {};
+    let on: { [key: string]: EventListener } = {};
 
     let children: Array<any> = Array.from(node.children);
 
@@ -80,7 +81,7 @@ export const parse = (
             const parsedEvent = parseEvent(propValue);
             const handler: EventListener = methods[parsedEvent.method];
             const args = chainElementsKeys(parseArgs(parsedEvent.args), state);
-            props.on = eventsObject.make(props, propName, handler, args);
+            on = eventsObject.make(on, propName, handler, args);
 
         } else if (directiveObject.check(propName)) {
             const parsedDirective = parseDirective(propValue);
@@ -101,9 +102,9 @@ export const parse = (
 
     if (!children.length) {
         if (parseObject.children.length) {
-            return h(node.tagName, props, parseObject.children);
+            return h(node.tagName, props, parseObject.children, on);
         } else {
-            return h(node.tagName, props, node.textContent || '');
+            return h(node.tagName, props, node.textContent || '', on);
         }
     } else {
         const nodeChildren = [];
@@ -115,6 +116,6 @@ export const parse = (
             }
         }
 
-        return h(node.tagName, props, nodeChildren);
+        return h(node.tagName, props, nodeChildren, on);
     }
 };

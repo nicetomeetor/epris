@@ -19,4 +19,5 @@ export type VirtualNode = {
     props: { [key: string]: string },
     children: Array<VirtualNode> | string,
     $el?: HTMLElement
+    on: { [key: string]: EventListener }
 };

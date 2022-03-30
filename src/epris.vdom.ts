@@ -5,11 +5,13 @@ export const h = (
     tag: string,
     props: { [key: string]: string },
     children: Array<VirtualNode> | string,
-) => {
+    on: { [key: string]: EventListener }
+): VirtualNode => {
     return {
         tag,
         props,
         children,
+        on
     };
 };
 
@@ -17,8 +19,7 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
-
-    const on: any = props.on;
+    const on = node.on;
 
     const el = document.createElement(tag);
 
