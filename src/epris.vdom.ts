@@ -23,9 +23,7 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
 
     const el = document.createElement(tag);
 
-    if (on) {
-        events.addEvents(el, on);
-    }
+    events.addEvents(el, on);
 
     for (const key in props) {
         el.setAttribute(key, props[key]);
@@ -42,8 +40,6 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
 
     node.$el = el;
     container.appendChild(el);
-
-    return node;
 };
 
 export const unmount = (node: VirtualNode) => {
@@ -51,6 +47,8 @@ export const unmount = (node: VirtualNode) => {
 };
 
 export const patch = (node: VirtualNode, newNode: VirtualNode) => {
+    events.updateEvents(node, newNode);
+
     if (node.tag !== newNode.tag) {
         mount(newNode, node.$el.parentElement);
         unmount(node);
