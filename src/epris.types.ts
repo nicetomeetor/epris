@@ -18,6 +18,13 @@ export type VirtualNode = {
     tag: string,
     props: { [key: string]: string },
     children: Array<VirtualNode> | string,
-    $el?: HTMLElement
-    on: { [key: string]: EventListener }
+    el?: HTMLElement,
+    on: { [key: string]: EventListener },
+    key?: number
 };
+
+export type EprisObject = {
+    el: string,
+    state: State,
+    actions: Actions
+}
