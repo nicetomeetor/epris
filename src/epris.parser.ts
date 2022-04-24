@@ -22,6 +22,7 @@ const chainElementsKeys = (elements: any, state: any) => {
 const parseArg = (arg: Array<string>) => {
     const data = arg[0];
     const keys = arg.slice(1);
+
     return {
         keys,
         data,
@@ -40,20 +41,22 @@ const parseArgs = (args: Array<Array<string>>) => {
 
 const parseEvent = (propValue: string) => {
     const values = propValue.match(regExpFun);
-    const method = values[1];
-    const args = values[2]
+    const action = values[1];
+    const rawArgs = values[2]
+    const args = rawArgs
         .replace(regExpEmpty, '')
         .split(',')
         .map((arg: string) => arg.split('.'));
 
     return {
-        method,
-        args,
+        action,
+        args: rawArgs ? args : [],
     };
 };
 
 export const parseDirective = (propValue: string) => {
     const values = propValue.split('.');
+
     return parseArg(values);
 };
 
@@ -61,8 +64,6 @@ export const parse = (
     node: HTMLElement,
     context: Epris
 ): VirtualNode | null => {
-    const state = context.state;
-    const actions = context.actions;
     const attributes = Array.from(node.attributes);
 
     let props: { [key: string]: any } = {};
@@ -80,24 +81,10 @@ export const parse = (
         const propValue = attribute.value;
 
         if (isEvent(propName)) {
-            const parsedEvent = parseEvent(propValue);
-            const handler: EventListener = actions[parsedEvent.method];
-            const args = chainElementsKeys(parseArgs(parsedEvent.args), state);
-            on = attachEvent(on, propName, handler, args);
+            on = updateOn({propName, propValue, context, on})
         } else if (isDirective(propName)) {
-            const parsedDirective = parseDirective(propValue);
-            console.log(parsedDirective)
-            const clonedNode = node.cloneNode(true);
-            (clonedNode as HTMLElement).removeAttribute(propName)
-            const directive = useDirective(
-                propName,
-                {
-                    rawValue: parsedDirective,
-                    node: clonedNode,
-                    context
-                }
-            );
-            parseObject[directive.key] = directive.value;
+            const { key, value } = updateDirective({propValue, context, node, propName});
+            parseObject[key] = value;
         } else {
             props[propName] = propValue;
         }
@@ -137,3 +124,35 @@ export const parse = (
         return h(node.tagName, props, nodeChildren, on);
     }
 };
+
+const updateOn = ({propValue, context, on, propName}: any) => {
+    const actions = context.actions;
+    const state = context.state;
+
+    const { args, action } = parseEvent(propValue);
+    const handler: EventListener = actions[action];
+    const chainedArgs = chainElementsKeys(parseArgs(args), state);
+    on = attachEvent(on, propName, handler, chainedArgs);
+
+    return on;
+}
+
+const updateDirective = ({propValue, context, node, propName}: any) => {
+    const parsedDirective = parseDirective(propValue);
+    const clonedNode = node.cloneNode(true);
+    (clonedNode as HTMLElement).removeAttribute(propName)
+
+    const {key, value} = useDirective(
+        propName,
+        {
+            rawValue: parsedDirective,
+            node: clonedNode,
+            context,
+        }
+    );
+
+    return {
+        key,
+        value
+    };
+}
