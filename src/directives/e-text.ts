@@ -1,8 +1,11 @@
-import { State } from '../epris.types';
+import { chainElementKeys } from '../epris.parser';
 
-export default (value: string, state: State) => {
+export default ({rawValue, context}: any) => {
+    const state = context.state;
+    const parsedValue = chainElementKeys(rawValue, state)
+
     return {
         key: 'children',
-        value: state[value] !== undefined ? String(state[value]) : value
-    }
+        value: String(parsedValue)
+    };
 }

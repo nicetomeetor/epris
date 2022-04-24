@@ -1,15 +1,17 @@
-import events from './epris.events';
+import { addEvents, updateEvents } from './epris.events';
 import { VirtualNode } from './epris.types';
 
 export const h = (
     tag: string,
     props: { [key: string]: string },
     children: Array<VirtualNode> | string,
-) => {
+    on: { [key: string]: EventListener }
+): VirtualNode => {
     return {
         tag,
         props,
         children,
+        on
     };
 };
 
@@ -17,14 +19,11 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
-
-    const on: any = props.on;
+    const on = node.on;
 
     const el = document.createElement(tag);
 
-    if (on) {
-        events.addEvents(el, on);
-    }
+    addEvents(el, on);
 
     for (const key in props) {
         el.setAttribute(key, props[key]);
@@ -39,38 +38,38 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
             });
     }
 
-    node.$el = el;
+    node.el = el;
     container.appendChild(el);
-
-    return node;
 };
 
 export const unmount = (node: VirtualNode) => {
-    node.$el.parentNode.removeChild(node.$el);
+    node.el.parentNode.removeChild(node.el);
 };
 
 export const patch = (node: VirtualNode, newNode: VirtualNode) => {
+    updateEvents(node, newNode);
+
     if (node.tag !== newNode.tag) {
-        mount(newNode, node.$el.parentElement);
+        mount(newNode, node.el.parentElement);
         unmount(node);
     } else {
-        newNode.$el = node.$el;
+        newNode.el = node.el;
+
+        while (newNode.el.attributes.length > 0) {
+            newNode.el.removeAttribute(newNode.el.attributes[0].name);
+        }
+
+        for (const key in newNode.props) {
+            newNode.el.setAttribute(key, newNode.props[key]);
+        }
 
         if (typeof newNode.children === 'string') {
-            newNode.$el.textContent = newNode.children;
+            newNode.el.textContent = newNode.children;
         } else {
-            while (newNode.$el.attributes.length > 0) {
-                newNode.$el.removeAttribute(newNode.$el.attributes[0].name);
-            }
-
-            for (const key in newNode.props) {
-                newNode.$el.setAttribute(key, newNode.props[key]);
-            }
-
             if (typeof node.children === 'string') {
-                newNode.$el.textContent = null;
+                newNode.el.textContent = null;
                 newNode.children.forEach(child => {
-                    mount(child, newNode.$el);
+                    mount(child, newNode.el);
                 });
             } else {
                 const minChildrenLength = Math.min(node.children.length, newNode.children.length);
@@ -86,7 +85,7 @@ export const patch = (node: VirtualNode, newNode: VirtualNode) => {
 
                 if (node.children.length < newNode.children.length) {
                     newNode.children.slice(node.children.length).forEach(child => {
-                        mount(child, newNode.$el);
+                        mount(child, newNode.el);
                     });
                 }
             }

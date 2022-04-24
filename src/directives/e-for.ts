@@ -1,30 +1,45 @@
 import { parse } from '../epris.parser';
-import { State, Actions, VirtualNode } from '../epris.types';
+import { VirtualNode } from '../epris.types';
+import { regExpFor } from '../epris.regexp';
 
 export default (
-    value: string,
-    state: State,
-    methods: Actions,
-    node: HTMLElement,
+    {
+        context,
+        node,
+        rawValue,
+        propName
+    }: any
 ) => {
+    const clonedNode = node.cloneNode(true);
+
+    const actions = context.actions;
+    const state = context.state;
+
     const children: Array<VirtualNode> = [];
-    const split = node.getAttribute('e-for').split(' ');
-    node.removeAttribute('e-for');
+    const split = rawValue.data.match(regExpFor);
 
-    const key = split[0];
+    const key = split[1];
     const arrayKey = split[2];
+    const array = state[arrayKey];
 
-    state[arrayKey].forEach((element: any) => {
-        const forState = {};
+    array.forEach((element: any) => {
+        const loopState = {};
 
-        Object.defineProperty(forState, key, {
+        Object.defineProperty(loopState, key, {
             value: element,
             writable: true,
             enumerable: true,
             configurable: true,
         });
 
-        const parsed = parse(node, forState, methods);
+        Object.assign(loopState, context.state)
+
+        const loopContext = {
+            state: loopState,
+            actions
+        }
+
+        const parsed = parse(clonedNode, loopContext);
         children.push(parsed);
     });
 

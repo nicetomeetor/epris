@@ -1,10 +1,13 @@
-import { State } from '../epris.types';
+import { chainElementKeys } from '../epris.parser';
 
-export default (value: string, state: State) => {
+export default ({rawValue, context, node}: any) => {
+    const state = context.state;
+    const parsedValue = chainElementKeys(rawValue, state);
+
     return {
         key: 'status',
-        value: state[value] !== undefined ? state[value] : !stringToBoolean(value)
-    }
+        value: parsedValue,
+    };
 }
 
 const stringToBoolean = (str: string) => {

@@ -1,44 +1,49 @@
 import config from './epris.config';
+import { VirtualNode } from './epris.types';
 
 const prefix = config.prefix + 'on:';
 
-class EprisEvents {
-    check(event: string) {
-        return event.includes(prefix);
-    }
+export const isEvent = (event: string) => event.includes(prefix);
 
-    addEvent(el: HTMLElement, event: string, action: EventListener) {
-        el.addEventListener(event, action);
-    }
+export const addEvent = (el: HTMLElement, e: string, action: EventListener) => {
+    el.addEventListener(e, action);
+};
 
-    addEvents(el: HTMLElement, events: {[key: string]: EventListener}) {
-        Object
-            .entries(events)
-            .forEach(([event, handler]) => {
-                return this.addEvent(el, event, handler);
-            });
-    }
+export const removeEvent = (el: HTMLElement, e: string, action: EventListener) => {
+    el.removeEventListener(e, action);
+};
 
-    make(props: any, propName: string, handler: EventListener, args: any[]) {
-        const event = propName.slice(prefix.length, propName.length);
-        if (!props.on) {
-            Object.defineProperty(props, 'on', {
-                value: {},
-                writable: true,
-                enumerable: false,
-                configurable: true,
-            });
-        }
-
-        Object.defineProperty(props.on, event, {
-            value: handler.bind(null, ...args),
-            writable: true,
-            enumerable: true,
-            configurable: true,
+export const removeEvents = (el: HTMLElement, events: {[key: string]: EventListener}) => {
+    Object
+        .entries(events)
+        .forEach(([event, handler]) => {
+            removeEvent(el, event, handler);
         });
+};
 
-        return props.on;
-    }
+export const addEvents = (el: HTMLElement, events: {[key: string]: EventListener}) => {
+    Object
+        .entries(events)
+        .forEach(([event, handler]) => {
+            addEvent(el, event, handler);
+        });
 }
 
-export default new EprisEvents();
+export const updateEvents = (vNode: VirtualNode, newVNode: VirtualNode)  => {
+    removeEvents(vNode.el, vNode.on);
+    addEvents(vNode.el, newVNode.on)
+}
+
+export const attachEvent = (on: {[key: string]: EventListener}, propName: string, handler: EventListener, args: any[]) => {
+    const event = propName.slice(prefix.length, propName.length);
+
+    Object.defineProperty(on, event, {
+        value: args.length ? handler.bind(null, ...args) : handler,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+    });
+
+    return on;
+}
+

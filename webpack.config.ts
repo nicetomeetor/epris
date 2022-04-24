@@ -22,6 +22,7 @@ const config: webpack.Configuration = {
     devServer: {
         static: './dist',
         hot: true,
+        port: 9000,
     },
     output: {
         filename: '[name].bundle.js',
