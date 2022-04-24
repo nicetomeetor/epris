@@ -1,6 +1,6 @@
 import { VirtualNode } from './epris.types';
 import { attachEvent, isEvent } from './epris.events';
-import directiveObject from './epris.directives';
+import { isDirective, useDirective } from './epris.directives';
 import { h } from './epris.vdom';
 import Epris from './epris';
 import { regExpFun, regExpEmpty } from './epris.regexp';
@@ -84,11 +84,20 @@ export const parse = (
             const handler: EventListener = actions[parsedEvent.method];
             const args = chainElementsKeys(parseArgs(parsedEvent.args), state);
             on = attachEvent(on, propName, handler, args);
-
-        // } else if (directiveObject.check(propName)) {
-        //     const parsedDirective = parseDirective(propValue);
-        //     const directive = directiveObject.make(propName, propValue, state, actions, node.cloneNode(true), context);
-        //     parseObject[directive.key] = directive.value;
+        } else if (isDirective(propName)) {
+            const parsedDirective = parseDirective(propValue);
+            console.log(parsedDirective)
+            const clonedNode = node.cloneNode(true);
+            (clonedNode as HTMLElement).removeAttribute(propName)
+            const directive = useDirective(
+                propName,
+                {
+                    rawValue: parsedDirective,
+                    node: clonedNode,
+                    context
+                }
+            );
+            parseObject[directive.key] = directive.value;
         } else {
             props[propName] = propValue;
         }
