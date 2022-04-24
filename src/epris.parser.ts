@@ -1,10 +1,9 @@
-import { Actions, VirtualNode } from './epris.types';
-import eventsObject from './epris.events';
+import { VirtualNode } from './epris.types';
+import { attachEvent, isEvent } from './epris.events';
 import directiveObject from './epris.directives';
 import { h } from './epris.vdom';
-
-const funRegExp = /(.*)\((.*)\)/;
-// const argRegExp = /(.*)(\.?)(.*)/;
+import Epris from './epris';
+import { regExpFun, regExpEmpty } from './epris.regexp';
 
 export const chainElementKeys = (element: any, state: any) => {
     const data = element.data;
@@ -40,9 +39,10 @@ const parseArgs = (args: Array<Array<string>>) => {
 };
 
 const parseEvent = (propValue: string) => {
-    const values = propValue.match(funRegExp);
+    const values = propValue.match(regExpFun);
     const method = values[1];
     const args = values[2]
+        .replace(regExpEmpty, '')
         .split(',')
         .map((arg: string) => arg.split('.'));
 
@@ -59,11 +59,13 @@ export const parseDirective = (propValue: string) => {
 
 export const parse = (
     node: HTMLElement,
-    state: { [key: string]: any },
-    methods: Actions,
+    context: Epris
 ): VirtualNode | null => {
+    const state = context.state;
+    const actions = context.actions;
     const attributes = Array.from(node.attributes);
-    const props: { [key: string]: any } = {};
+
+    let props: { [key: string]: any } = {};
     let on: { [key: string]: EventListener } = {};
 
     let children: Array<any> = Array.from(node.children);
@@ -77,16 +79,16 @@ export const parse = (
         const propName = attribute.name;
         const propValue = attribute.value;
 
-        if (eventsObject.check(propName)) {
+        if (isEvent(propName)) {
             const parsedEvent = parseEvent(propValue);
-            const handler: EventListener = methods[parsedEvent.method];
+            const handler: EventListener = actions[parsedEvent.method];
             const args = chainElementsKeys(parseArgs(parsedEvent.args), state);
-            on = eventsObject.make(on, propName, handler, args);
+            on = attachEvent(on, propName, handler, args);
 
-        } else if (directiveObject.check(propName)) {
-            const parsedDirective = parseDirective(propValue);
-            const directive = directiveObject.make(propName, propValue, state, methods, node.cloneNode(true));
-            parseObject[directive.key] = directive.value;
+        // } else if (directiveObject.check(propName)) {
+        //     const parsedDirective = parseDirective(propValue);
+        //     const directive = directiveObject.make(propName, propValue, state, actions, node.cloneNode(true), context);
+        //     parseObject[directive.key] = directive.value;
         } else {
             props[propName] = propValue;
         }
@@ -100,16 +102,23 @@ export const parse = (
         children = [];
     }
 
+    if (typeof parseObject.children === 'object') {
+        props = {}
+    }
+
     if (!children.length) {
         if (parseObject.children.length) {
             return h(node.tagName, props, parseObject.children, on);
         } else {
+            if (parseObject.children.length === 0 && typeof parseObject.children === 'object') {
+                return h(node.tagName, props, '', on);
+            }
             return h(node.tagName, props, node.textContent || '', on);
         }
     } else {
         const nodeChildren = [];
         for (let i = 0; i < children.length; i++) {
-            const parsed = parse(children[i] as HTMLElement, state, methods);
+            const parsed = parse(children[i] as HTMLElement, context);
 
             if (parsed) {
                 nodeChildren.push(parsed);
