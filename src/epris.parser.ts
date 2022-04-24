@@ -3,7 +3,7 @@ import { attachEvent, isEvent } from './epris.events';
 import { isDirective, useDirective } from './epris.directives';
 import { h } from './epris.vdom';
 import Epris from './epris';
-import { regExpFun, regExpEmpty } from './epris.regexp';
+import { regExpFun, regExpEmpty, regPropModifierName, regPropModifierValue } from './epris.regexp';
 
 export const chainElementKeys = (element: any, state: any) => {
     const data = element.data;
@@ -74,21 +74,39 @@ export const parse = (
     const parseObject: { [key: string]: any } = {
         status: true,
         children: '',
+        props: {}
     };
 
     attributes.forEach((attribute) => {
         const propName = attribute.name;
         const propValue = attribute.value;
 
+        const rawPropModifierName = propName.match(regPropModifierName)
+        const propModifierName = rawPropModifierName ? rawPropModifierName[1] : propName
+
+        const rawPropModifierValue = propName.match(regPropModifierValue)
+        const propModifierValue = rawPropModifierValue ? rawPropModifierValue[1] : propValue
+
         if (isEvent(propName)) {
-            on = updateOn({propName, propValue, context, on})
-        } else if (isDirective(propName)) {
-            const { key, value } = updateDirective({propValue, context, node, propName});
-            parseObject[key] = value;
+            on = updateOn({
+                propName, propValue, context, on
+            });
+        } else if (isDirective(propModifierName)) {
+            const { key, value, name } = updateDirective({
+                propValue, context, node, propName, propModifierName, propModifierValue
+            });
+
+            if (key === 'props') {
+                parseObject[key][name] = value;
+            } else {
+                parseObject[key] = value;
+            }
         } else {
             props[propName] = propValue;
         }
     });
+
+    Object.assign(props, parseObject.props)
 
     if (!parseObject.status) {
         return null;
@@ -137,22 +155,24 @@ const updateOn = ({propValue, context, on, propName}: any) => {
     return on;
 }
 
-const updateDirective = ({propValue, context, node, propName}: any) => {
+const updateDirective = ({propValue, context, node, propName, propModifierName, propModifierValue}: any) => {
     const parsedDirective = parseDirective(propValue);
     const clonedNode = node.cloneNode(true);
     (clonedNode as HTMLElement).removeAttribute(propName)
 
-    const {key, value} = useDirective(
-        propName,
+    const {key, value, name} = useDirective(
+        propModifierName,
         {
             rawValue: parsedDirective,
             node: clonedNode,
             context,
+            propModifierValue
         }
     );
 
     return {
         key,
-        value
+        value,
+        name,
     };
 }
