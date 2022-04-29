@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-Text</title>
+    </head>
+    <body>
+        <div id='app'>
+            <div e-text='text'></div>
+            <div e-text='textObject.text'></div>
+            <div e-text='textObject.foo.text'></div>
+            <button e-on:click='reverseText()'>
+                REVERSE TEXT
+            </button>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            text: 'text-1',
+            textObject: {
+                text: 'text-2',
+                foo: {
+                    text: 'text-3',
+                },
+            },
+        },
+        actions: {
+            reverseText() {
+                this.text = this.text.split('').reverse().join('');
+
+                this.textObject = {
+                    text: this.textObject.text.split('').reverse().join(''),
+                    foo: {
+                        text: this.textObject.foo.text.split('').reverse().join(''),
+                    },
+                };
+            },
+        },
+    });
+</script>
