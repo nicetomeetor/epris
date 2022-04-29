@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-For</title>
+    </head>
+    <body>
+        <div id='app'>
+            <div e-for='name of names'>
+                <div e-text='name'></div>
+            </div>
+            <hr>
+            <div e-for='object of objects'>
+                <div e-text='object.id'></div>
+                <div e-text='object.name'></div>
+            </div>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            names: ['Michael', "Den", "Alex", "Daniel"],
+            objects: [
+                {id: 0, name: 'Michael'},
+                {id: 1, name: 'Den'},
+            ],
+        },
+        actions: {
+            changeStatus() {
+                this.status = !this.status;
+            },
+        },
+    });
+</script>

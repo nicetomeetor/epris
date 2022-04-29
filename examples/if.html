@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-If</title>
+    </head>
+    <body>
+        <div id='app'>
+            <div e-if='status'>
+                Status
+            </div>
+            <div e-if='statusObject.status'>
+                Status Object
+            </div>
+            <button e-on:click='changeStatus()'>
+                CHANGE STATUS
+            </button>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            status: true,
+            statusObject: {
+                status: false,
+            },
+        },
+        actions: {
+            changeStatus() {
+                this.status = !this.status;
+                this.statusObject.status = !this.statusObject.status;
+            },
+        },
+    });
+</script>
