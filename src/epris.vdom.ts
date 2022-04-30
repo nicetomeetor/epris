@@ -1,5 +1,6 @@
 import { addEvents, updateEvents } from './epris.events';
 import { VirtualNode } from './epris.types';
+import { control } from './epris.forms';
 
 export const h = (
     tag: string,
@@ -91,4 +92,6 @@ export const patch = (node: VirtualNode, newNode: VirtualNode) => {
             }
         }
     }
+
+    control(newNode)
 };
