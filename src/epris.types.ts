@@ -16,7 +16,7 @@ export type Getters = {
 
 export type VirtualNode = {
     tag: string,
-    props: { [key: string]: string },
+    props: { [key: string]: any },
     children: Array<VirtualNode> | string,
     el?: HTMLElement,
     on: { [key: string]: EventListener },

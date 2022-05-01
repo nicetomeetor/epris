@@ -1,50 +1,42 @@
 import { VirtualNode } from './epris.types';
 
-enum elementType {
+enum ElementType {
     INPUT = 'INPUT',
     TEXTAREA = 'TEXTAREA',
-    // SELECT = 'SELECT',
-}
-
-type ControlledElement = HTMLAreaElement | HTMLInputElement;
-
-const findInputValueName = (node: VirtualNode) => {
-    const type = node.props.type;
-
-    switch (type) {
-        case 'checkbox':
-            return 'checked';
-        default:
-            return 'value';
-    }
-}
-
-const findTextAreaValueName = () => {
-    return "value";
+    SELECT = 'SELECT',
 }
 
 const controlledTags = [
-    elementType.INPUT,
-    elementType.TEXTAREA,
-    // 'SELECT',
+    ElementType.INPUT,
+    ElementType.TEXTAREA,
+    ElementType.SELECT,
 ];
 
-const valueTypes = new Map<string, Function>([
-    [elementType.INPUT, findInputValueName],
-    [elementType.TEXTAREA, findTextAreaValueName]
-]);
-
-export const control = (node: VirtualNode) => {
-    const tag = node.tag;
-    const value = node.props.value;
-    const type = node.props.type;
-
-    if (controlledTags.includes(tag as elementType)) {
-        const key: string = findInputValueName(node)
-        (<any>(node.el))[] = value;
-        // console.log(node.props)
+const findType = (node: VirtualNode) => {
+    const { props, tag, el } = node;
+    
+    switch (tag as ElementType) {
+        case ElementType.INPUT:
+            const type = props.type;
+            if (type === 'checkbox') {
+                (<HTMLInputElement>(el)).checked = props.checked;
+            } else {
+                (<HTMLInputElement>(el)).value = props.value;
+            }
+            break;
+        case ElementType.TEXTAREA:
+            (<HTMLTextAreaElement>(el)).value = props.value;
+            break;
+        case ElementType.SELECT:
+            (<HTMLSelectElement>(el)).value = props.value;
+            break;
     }
 };
 
-// const find
+export const control = (node: VirtualNode) => {
+    const tag = node.tag;
 
+    if (controlledTags.includes(tag as ElementType)) {
+        findType(node);
+    }
+};
