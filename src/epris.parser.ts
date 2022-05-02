@@ -60,22 +60,12 @@ export const parseDirective = (propValue: string) => {
     return parseArg(values);
 };
 
-export const parse = (
-    node: HTMLElement,
+export const mutateNode = (
+    element: HTMLElement,
     context: Epris
-): VirtualNode | null => {
-    const attributes = Array.from(node.attributes);
-
-    let props: { [key: string]: any } = {};
-    let on: { [key: string]: EventListener } = {};
-
-    let children: Array<any> = Array.from(node.children);
-
-    const parseObject: { [key: string]: any } = {
-        status: true,
-        children: '',
-        props: {}
-    };
+) => {
+    const attributes = Array.from(element.attributes);
+    const children = element.children;
 
     for (const attribute of attributes) {
         const propName = attribute.name;
@@ -87,60 +77,102 @@ export const parse = (
         const rawPropModifierValue = propName.match(regPropModifierValue)
         const propModifierValue = rawPropModifierValue ? rawPropModifierValue[1] : propValue
 
-        if (isEvent(propName)) {
-            on = updateOn({
-                propName, propValue, context, on
+        if (isDirective(propModifierName)) {
+            updateDirective({
+                propValue, context, "node": element, propName, propModifierName, propModifierValue
             });
-        } else if (isDirective(propModifierName)) {
-            const { key, value, name, skip } = updateDirective({
-                propValue, context, node, propName, propModifierName, propModifierValue
-            });
-
-            if (skip) {
-                break;
-            }
-
-            if (key === 'props') {
-                parseObject[key][name] = value;
-            } else {
-                parseObject[key] = value;
-            }
-        } else {
-            props[propName] = propValue;
         }
     }
 
-    Object.assign(props, parseObject.props)
-
-    if (!parseObject.status) {
-        return null;
-    }
-
-    if (parseObject.children.length > 0 || typeof parseObject.children === 'object') {
-        children = [];
-    }
-
-    if (children.length <= 0) {
-        if (parseObject.children.length) {
-            return h(node.tagName, props, parseObject.children, on);
-        } else {
-            if (parseObject.children.length === 0 && typeof parseObject.children === 'object') {
-                return h(node.tagName, props, '', on);
-            }
-            return h(node.tagName, props, node.textContent || '', on);
-        }
-    } else {
-        const nodeChildren = [];
+    if (children.length > 0) {
         for (let i = 0; i < children.length; i++) {
-            const parsed = parse(children[i] as HTMLElement, context);
-            
-            if (parsed) {
-                nodeChildren.push(parsed);
-            }
+            mutateNode(children[i] as HTMLElement, context)
         }
-
-        return h(node.tagName, props, nodeChildren, on);
     }
+};
+
+export const parse = (
+    node: HTMLElement,
+    context: Epris
+) => {
+    mutateNode(node, context)
+    // const attributes = Array.from(node.attributes);
+    //
+    // let props: { [key: string]: any } = {};
+    // let on: { [key: string]: EventListener } = {};
+    //
+    // let children: Array<any> = Array.from(node.children);
+    //
+    // const parseObject: { [key: string]: any } = {
+    //     status: true,
+    //     children: '',
+    //     props: {}
+    // };
+    //
+    // for (const attribute of attributes) {
+    //     const propName = attribute.name;
+    //     const propValue = attribute.value;
+    //
+    //     const rawPropModifierName = propName.match(regPropModifierName)
+    //     const propModifierName = rawPropModifierName ? rawPropModifierName[1] : propName
+    //
+    //     const rawPropModifierValue = propName.match(regPropModifierValue)
+    //     const propModifierValue = rawPropModifierValue ? rawPropModifierValue[1] : propValue
+    //
+    //     if (isEvent(propName)) {
+    //         on = updateOn({
+    //             propName, propValue, context, on
+    //         });
+    //     } else if (isDirective(propModifierName)) {
+    //         const { key, value, name, skip } = updateDirective({
+    //             propValue, context, node, propName, propModifierName, propModifierValue
+    //         });
+    //
+    //         if (skip) {
+    //             break;
+    //         }
+    //
+    //         if (key === 'props') {
+    //             parseObject[key][name] = value;
+    //         } else {
+    //             parseObject[key] = value;
+    //         }
+    //     } else {
+    //         props[propName] = propValue;
+    //     }
+    // }
+    //
+    // Object.assign(props, parseObject.props)
+    //
+    // if (!parseObject.status) {
+    //     return null;
+    // }
+    //
+    // if (parseObject.children.length > 0 || typeof parseObject.children === 'object') {
+    //     children = [];
+    // }
+    //
+    // if (children.length <= 0) {
+    //     if (parseObject.children.length) {
+    //         return h(node.tagName, props, parseObject.children, on);
+    //     } else {
+    //         if (parseObject.children.length === 0 && typeof parseObject.children === 'object') {
+    //             return h(node.tagName, props, '', on);
+    //         }
+    //         return h(node.tagName, props, node.textContent || '', on);
+    //     }
+    // } else {
+    //     const nodeChildren = [];
+    //     for (let i = 0; i < children.length; i++) {
+    //         const parsed = parse(children[i] as HTMLElement, context);
+    //
+    //         if (parsed) {
+    //             nodeChildren.push(parsed);
+    //         }
+    //     }
+    //
+    //     return h(node.tagName, props, nodeChildren, on);
+    // }
 };
 
 const updateOn = ({propValue, context, on, propName}: any) => {
@@ -157,25 +189,23 @@ const updateOn = ({propValue, context, on, propName}: any) => {
 
 const updateDirective = ({propValue, context, node, propName, propModifierName, propModifierValue}: any) => {
     const parsedDirective = parseDirective(propValue);
-    const clonedNode = node.cloneNode(true);
-    (clonedNode as HTMLElement).removeAttribute(propName)
+    // const clonedNode = node.cloneNode(true);
+    // (clonedNode as HTMLElement).removeAttribute(propName)
 
-    console.log(parsedDirective)
-
-    const {key, value, name, skip} = useDirective(
+    useDirective(
         propModifierName,
         {
             rawValue: parsedDirective,
-            node: clonedNode,
+            node,
             context,
             propModifierValue
         }
     );
 
-    return {
-        key,
-        value,
-        name,
-        skip,
-    };
+    // return {
+    //     key,
+    //     value,
+    //     name,
+    //     skip,
+    // };
 }

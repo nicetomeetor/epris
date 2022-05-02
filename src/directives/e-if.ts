@@ -1,25 +1,21 @@
-import { chainElementKeys } from '../epris.parser';
+import { chainElementKeys, mutateNode } from '../epris.parser';
 
-export default ({rawValue, context, node}: any) => {
+export default ({ rawValue, context, node }: any) => {
+
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
 
-    return {
-        key: 'status',
-        value: parsedValue,
-    };
-}
+    const sibling = node.nextElementSibling;
+    const parent = node.parentElement;
 
-const stringToBoolean = (str: string) => {
-    switch(str.toLowerCase().trim()){
-        case "true":
-            return true;
-
-        case "false":
-        case null:
-            return false;
-
-        default:
-            return Boolean(str);
+    if (parsedValue) {
+        if (sibling.hasAttribute('e-else')) {
+            parent.removeChild(sibling);
+        }
+    } else {
+        parent.removeChild(node);
+        mutateNode(parent, context);
     }
+
+    sibling.removeAttribute('e-else');
 }
