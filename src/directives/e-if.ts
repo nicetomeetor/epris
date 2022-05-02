@@ -14,8 +14,8 @@ export default ({ rawValue, context, node }: any) => {
         }
     } else {
         parent.removeChild(node);
-        mutateNode(parent, context);
     }
 
     sibling.removeAttribute('e-else');
+    mutateNode(parent, context);
 }
