@@ -77,7 +77,7 @@ export const parse = (
         props: {}
     };
 
-    attributes.forEach((attribute) => {
+    for (const attribute of attributes) {
         const propName = attribute.name;
         const propValue = attribute.value;
 
@@ -92,9 +92,13 @@ export const parse = (
                 propName, propValue, context, on
             });
         } else if (isDirective(propModifierName)) {
-            const { key, value, name } = updateDirective({
+            const { key, value, name, skip } = updateDirective({
                 propValue, context, node, propName, propModifierName, propModifierValue
             });
+
+            if (skip) {
+                break;
+            }
 
             if (key === 'props') {
                 parseObject[key][name] = value;
@@ -104,7 +108,7 @@ export const parse = (
         } else {
             props[propName] = propValue;
         }
-    });
+    }
 
     Object.assign(props, parseObject.props)
 
@@ -116,11 +120,7 @@ export const parse = (
         children = [];
     }
 
-    if (typeof parseObject.children === 'object') {
-        props = {}
-    }
-
-    if (!children.length) {
+    if (children.length <= 0) {
         if (parseObject.children.length) {
             return h(node.tagName, props, parseObject.children, on);
         } else {
@@ -133,7 +133,7 @@ export const parse = (
         const nodeChildren = [];
         for (let i = 0; i < children.length; i++) {
             const parsed = parse(children[i] as HTMLElement, context);
-
+            
             if (parsed) {
                 nodeChildren.push(parsed);
             }
@@ -160,7 +160,9 @@ const updateDirective = ({propValue, context, node, propName, propModifierName, 
     const clonedNode = node.cloneNode(true);
     (clonedNode as HTMLElement).removeAttribute(propName)
 
-    const {key, value, name} = useDirective(
+    console.log(parsedDirective)
+
+    const {key, value, name, skip} = useDirective(
         propModifierName,
         {
             rawValue: parsedDirective,
@@ -174,5 +176,6 @@ const updateDirective = ({propValue, context, node, propName, propModifierName, 
         key,
         value,
         name,
+        skip,
     };
 }

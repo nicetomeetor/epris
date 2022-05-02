@@ -10,8 +10,6 @@ export default (
         propName
     }: any
 ) => {
-    const clonedNode = node.cloneNode(true);
-
     const actions = context.actions;
     const state = context.state;
 
@@ -39,12 +37,13 @@ export default (
             actions
         }
 
-        const parsed = parse(clonedNode, loopContext);
+        const parsed = parse(node, loopContext);
         children.push(parsed);
     });
 
     return {
         key: 'children',
         value: children,
+        skip: true,
     };
 }
