@@ -1,5 +1,4 @@
-import { mutateNode, parse } from '../epris.parser';
-import { VirtualNode } from '../epris.types';
+import { mutate } from '../epris.parser';
 import { regExpFor } from '../epris.regexp';
 
 export default (
@@ -7,8 +6,6 @@ export default (
         context,
         node,
         rawValue,
-        propName,
-        propModifierName
     }: any
 ) => {
     const actions = context.actions;
@@ -40,8 +37,9 @@ export default (
             actions
         }
 
-        mutateNode(clone, loopContext)
-        parent.appendChild(clone);
+        mutate(clone, loopContext)
+
+        parent.insertBefore(clone, node);
     });
 
     parent.removeChild(node);
