@@ -38,7 +38,7 @@ export const attachEvent = (on: {[key: string]: EventListener}, propName: string
     const event = propName.slice(prefix.length, propName.length);
 
     Object.defineProperty(on, event, {
-        value: args.length ? handler.bind(null, ...args) : handler,
+        value: args.length < 1 ? handler.bind(null, ...args) : handler,
         writable: true,
         enumerable: true,
         configurable: true,
