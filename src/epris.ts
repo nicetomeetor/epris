@@ -1,5 +1,5 @@
-import { mount, patch } from './epris.vdom';
-import { parse } from './epris.parser'
+import { patch, mount } from './epris.vdom';
+import { mutate, parse } from './epris.parser';
 import { reactive, watchEffect } from './epris.reactivity';
 import { Actions, State, VirtualNode, EprisObject } from './epris.types';
 import { defineActionProperties, defineStateProperties } from './epris.helpers';
@@ -7,29 +7,29 @@ import { defineActionProperties, defineStateProperties } from './epris.helpers';
 export default class Epris {
     actions: Actions;
     state: State;
-    el?:  HTMLElement;
+    el?: HTMLElement;
 
     constructor(object: EprisObject) {
-        const el = object.el;
-
-        this.state = reactive(object.state)
+        this.state = reactive(object.state);
         this.actions = object.actions;
 
-        defineActionProperties(this)
+        defineActionProperties(this);
+        defineStateProperties(this);
 
-        this.el = document.querySelector(el);
-
-        defineStateProperties(this)
+        this.el = document.querySelector(object.el);
 
         let parsedNode: VirtualNode;
 
         watchEffect(() => {
+            const newEl = this.el.cloneNode(true);
+            mutate(newEl as HTMLElement, this);
+
             if (!parsedNode) {
-                parsedNode = parse(this.el, this);
-                mount(parsedNode, this.el);
+                parsedNode = parse(newEl as HTMLElement);
+                mount(parsedNode, newEl as HTMLElement);
                 this.el.parentNode.replaceChild(parsedNode.el, this.el);
             } else {
-                const newNode = parse(this.el, this);
+                const newNode = parse(newEl as HTMLElement);
                 patch(parsedNode, newNode);
                 parsedNode = newNode;
             }

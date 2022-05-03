@@ -1,5 +1,4 @@
-import { parse } from '../epris.parser';
-import { VirtualNode } from '../epris.types';
+import { mutate } from '../epris.parser';
 import { regExpFor } from '../epris.regexp';
 
 export default (
@@ -7,22 +6,21 @@ export default (
         context,
         node,
         rawValue,
-        propName
     }: any
 ) => {
-    const clonedNode = node.cloneNode(true);
-
     const actions = context.actions;
     const state = context.state;
 
-    const children: Array<VirtualNode> = [];
     const split = rawValue.data.match(regExpFor);
 
     const key = split[1];
     const arrayKey = split[2];
     const array = state[arrayKey];
 
+    const parent = node.parentElement;
+
     array.forEach((element: any) => {
+        const clone = node.cloneNode(true);
         const loopState = {};
 
         Object.defineProperty(loopState, key, {
@@ -39,12 +37,10 @@ export default (
             actions
         }
 
-        const parsed = parse(clonedNode, loopContext);
-        children.push(parsed);
+        mutate(clone, loopContext)
+
+        parent.insertBefore(clone, node);
     });
 
-    return {
-        key: 'children',
-        value: children,
-    };
+    parent.removeChild(node);
 }

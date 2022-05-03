@@ -10,13 +10,9 @@ export type Actions = {
     [key: string]: EventListener
 }
 
-export type Getters = {
-    [key: string]: Function
-}
-
 export type VirtualNode = {
     tag: string,
-    props: { [key: string]: string },
+    props: { [key: string]: any },
     children: Array<VirtualNode> | string,
     el?: HTMLElement,
     on: { [key: string]: EventListener },
@@ -27,4 +23,9 @@ export type EprisObject = {
     el: string,
     state: State,
     actions: Actions
+}
+
+export interface Element extends HTMLElement {
+    on?: { [key: string]: EventListener }
+    props?: { [key: string]: any }
 }
