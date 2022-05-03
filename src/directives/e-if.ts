@@ -1,7 +1,6 @@
-import { chainElementKeys, mutateNode } from '../epris.parser';
+import { chainElementKeys, mutate } from '../epris.parser';
 
 export default ({ rawValue, context, node }: any) => {
-
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
 
@@ -17,5 +16,5 @@ export default ({ rawValue, context, node }: any) => {
     }
 
     sibling.removeAttribute('e-else');
-    mutateNode(parent, context);
+    mutate(parent, context);
 }
