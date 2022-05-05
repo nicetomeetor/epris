@@ -1,20 +1,25 @@
 import { patch, mount } from './epris.vdom';
 import { mutate, parse } from './epris.parser';
-import { reactive, watchEffect } from './epris.reactivity';
+import { reactive, setEffects, watchEffect } from './epris.reactivity';
 import { Actions, State, VirtualNode, EprisObject } from './epris.types';
-import { defineActionProperties, defineStateProperties } from './epris.helpers';
+import { bindEffects, defineActionProperties, defineStateProperties } from './epris.helpers';
 
 export default class Epris {
     actions: Actions;
     state: State;
     el?: HTMLElement;
+    effects: any;
 
     constructor(object: EprisObject) {
         this.state = reactive(object.state);
         this.actions = object.actions;
+        this.effects = object.effects || {}
 
         defineActionProperties(this);
         defineStateProperties(this);
+        bindEffects(this);
+
+        setEffects(this.effects);
 
         this.el = document.querySelector(object.el);
 
