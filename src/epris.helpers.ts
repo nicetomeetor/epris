@@ -16,6 +16,16 @@ export const defineActionProperties = (context: Epris) => {
         });
 }
 
+export const bindEffects = (context: Epris) => {
+    Object
+        .entries(context.effects)
+        .forEach(([name, func]) => {
+            // console.log(func)
+            // @ts-ignore
+            context.effects[name] = func.bind(context);
+        });
+}
+
 export const defineStateProperties = (context: Epris) => {
     Object
         .keys(context.state)
@@ -31,5 +41,19 @@ export const defineStateProperties = (context: Epris) => {
                     },
                 });
         });
+}
+
+export const stringToBoolean = (str: string) => {
+    switch(str.toLowerCase().trim()){
+        case "true":
+            return true;
+
+        case "false":
+        case null:
+            return false;
+
+        default:
+            return Boolean(str);
+    }
 }
 
