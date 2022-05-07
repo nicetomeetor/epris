@@ -22,7 +22,8 @@ export type VirtualNode = {
 export type EprisObject = {
     el: string,
     state: State,
-    actions: Actions
+    actions: Actions,
+    effects: any,
 }
 
 export interface Element extends HTMLElement {

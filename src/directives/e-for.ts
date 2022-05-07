@@ -10,6 +10,7 @@ export default (
 ) => {
     const actions = context.actions;
     const state = context.state;
+    const effects = context.effects
 
     const split = rawValue.data.match(regExpFor);
 
@@ -34,7 +35,8 @@ export default (
 
         const loopContext = {
             state: loopState,
-            actions
+            actions,
+            effects
         }
 
         mutate(clone, loopContext)
@@ -42,5 +44,13 @@ export default (
         parent.insertBefore(clone, node);
     });
 
+    removeAllChildNodes(node);
+
     parent.removeChild(node);
+}
+
+const removeAllChildNodes = (parent: any) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
 }
