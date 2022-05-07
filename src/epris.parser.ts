@@ -9,6 +9,7 @@ export const chainElementKeys = (element: any, state: any) => {
     const data = element.data;
     const keys = element.keys;
     let chainedData = state[data];
+    // console.log(state[data], element)
     keys.forEach((key: string) => {
         chainedData = chainedData[key];
     });
@@ -66,14 +67,15 @@ export const mutate = (
     context: Epris,
 ) => {
     const attributes = Array.from(element.attributes);
-    const children = Array.from(element.children);
+    const children = element.children;
+    const n = attributes.length;
 
     let on: any = {};
     const props: { [key: string]: any } = {}; // ?
 
-    for (const attribute of attributes) {
-        const propName = attribute.name;
-        const propValue = attribute.value;
+    for (let i = 0; i < n; i++) {
+        const propName = attributes[i].name;
+        const propValue = attributes[i].value;
 
         const {
             propModifierName,
@@ -97,8 +99,6 @@ export const mutate = (
                 element,
                 on,
             });
-        } else {
-            props[propName] = propValue;
         }
     }
 
@@ -115,7 +115,7 @@ export const mutate = (
 export const parse = (node: HTMLElement): VirtualNode => {
     const attributes = node.attributes;
     const n = attributes.length;
-    const props: any = {}
+    const props: any = {};
 
     const children = node.children;
 
@@ -154,9 +154,10 @@ const findModifiers = (propName: string, propValue: string) => {
     };
 };
 
-const updateOn = ({ propValue, context, propName, on }: any) => {
+const updateOn = ({ propValue, context, propName, on, element }: any) => {
     const actions = context.actions;
     const state = context.state;
+    element.removeAttribute(propName);
 
     const { args, action } = parseEvent(propValue);
     const handler: EventListener = actions[action];
