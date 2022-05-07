@@ -14,8 +14,13 @@ export const defineActionProperties = (context: Epris) => {
                     value: func,
                 });
         });
-}
+};
 
+export const removeAllChildNodes = (parent: any) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
 export const bindEffects = (context: Epris) => {
     Object
         .entries(context.effects)
@@ -24,7 +29,7 @@ export const bindEffects = (context: Epris) => {
             // @ts-ignore
             context.effects[name] = func.bind(context);
         });
-}
+};
 
 export const defineStateProperties = (context: Epris) => {
     Object
@@ -41,19 +46,19 @@ export const defineStateProperties = (context: Epris) => {
                     },
                 });
         });
-}
+};
 
 export const stringToBoolean = (str: string) => {
-    switch(str.toLowerCase().trim()){
-        case "true":
+    switch (str.toLowerCase().trim()) {
+        case 'true':
             return true;
 
-        case "false":
+        case 'false':
         case null:
             return false;
 
         default:
             return Boolean(str);
     }
-}
+};
 

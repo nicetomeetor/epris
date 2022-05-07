@@ -1,5 +1,6 @@
 import { mutate } from '../epris.parser';
 import { regExpFor } from '../epris.regexp';
+import { removeAllChildNodes } from '../epris.helpers';
 
 export default (
     {
@@ -47,10 +48,4 @@ export default (
     removeAllChildNodes(node);
 
     parent.removeChild(node);
-}
-
-const removeAllChildNodes = (parent: any) => {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
 }
