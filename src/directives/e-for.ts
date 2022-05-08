@@ -7,11 +7,13 @@ export default (
         context,
         node,
         rawValue,
-    }: any
+    }: any,
 ) => {
     const actions = context.actions;
     const state = context.state;
-    const effects = context.effects
+    const effects = context.effects;
+
+    const clone = node.cloneNode(true);
 
     const split = rawValue.data.match(regExpFor);
 
@@ -22,7 +24,7 @@ export default (
     const parent = node.parentElement;
 
     array.forEach((element: any) => {
-        const clone = node.cloneNode(true);
+        const loopClone = clone.cloneNode(true);
         const loopState = {};
 
         Object.defineProperty(loopState, key, {
@@ -32,20 +34,19 @@ export default (
             configurable: true,
         });
 
-        Object.assign(loopState, context.state)
+        Object.assign(loopState, context.state);
 
         const loopContext = {
             state: loopState,
             actions,
-            effects
-        }
+            effects,
+        };
 
-        mutate(clone, loopContext)
+        mutate(loopClone, loopContext);
 
-        parent.insertBefore(clone, node);
+        parent.insertBefore(loopClone, node);
     });
 
     removeAllChildNodes(node);
-
     parent.removeChild(node);
 }
