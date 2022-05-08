@@ -21,26 +21,38 @@ export const removeEvent = (
     element.removeEventListener(event, action);
 };
 
+const eachEvents = (
+    element: HTMLElement,
+    events: { [key: string]: EventListener },
+    func: Function,
+) => {
+    Object
+        .entries(events)
+        .forEach(([event, handler]) => {
+            func(element, event, handler);
+        });
+};
+
 export const removeEvents = (
     element: HTMLElement,
     events: { [key: string]: EventListener },
 ) => {
-    Object
-        .entries(events)
-        .forEach(([event, handler]) => {
-            removeEvent(element, event, handler);
-        });
+    eachEvents(
+        element,
+        events,
+        removeEvent,
+    );
 };
 
 export const addEvents = (
-    el: HTMLElement,
+    element: HTMLElement,
     events: { [key: string]: EventListener },
 ) => {
-    Object
-        .entries(events)
-        .forEach(([event, handler]) => {
-            addEvent(el, event, handler);
-        });
+    eachEvents(
+        element,
+        events,
+        addEvent,
+    );
 };
 
 export const updateEvents = (
