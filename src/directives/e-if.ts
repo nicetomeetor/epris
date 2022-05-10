@@ -18,8 +18,10 @@ export default (
 
     const siblingStatus = sibling && sibling.hasAttribute('e-else');
 
-    if (parsedValue && siblingStatus) {
-        parent.removeChild(sibling);
+    if (parsedValue) {
+        if (siblingStatus) {
+            parent.removeChild(sibling);
+        }
     } else {
         parent.removeChild(node);
     }
