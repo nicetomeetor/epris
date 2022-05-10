@@ -6,6 +6,10 @@ export type State = {
     [key: string]: any
 }
 
+export type Effects = {
+    [key: string]: any
+}
+
 export type Actions = {
     [key: string]: EventListener
 }
