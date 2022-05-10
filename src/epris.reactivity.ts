@@ -1,27 +1,32 @@
-let stateChangeEffect: Function = () => {};
+import { Effects } from './epris.types';
 
-export const watchEffect = (f: Function) => {
-    stateChangeEffect = f;
+let globalEffect: Function = () => {
+};
+let effects: Effects = {};
+
+export const watchGlobalEffect = (f: Function) => {
+    globalEffect = f;
     f();
 };
 
-let effects: any = {};
 
-export const setEffects = (eff: any) => {
-    effects = eff
-}
+export const watchEffects = (effs: Effects) => {
+    effects = effs;
+};
 
-
-
-export const reactive = (object: { [key: string]: any }, parent: any = null): Object => {
-    // console.log(object)
+export const reactive = (
+    object: { [key: string]: any },
+    parent: any = null,
+): Object => {
     if (object === null || typeof object !== 'object') {
         return object;
     }
 
-
     for (const property in object) {
-        object[property] = reactive(object[property], parent ? parent : property);
+        object[property] = reactive(
+            object[property],
+            parent ? parent : property,
+        );
     }
 
     return new Proxy(object, {
@@ -31,13 +36,19 @@ export const reactive = (object: { [key: string]: any }, parent: any = null): Ob
 
         set(target, property, value) {
             if (target[property as keyof typeof target] !== value) {
-                target[property as keyof typeof target] = reactive(value, parent ? parent : property);
-                stateChangeEffect()
+                const parentValue = parent ? parent : property;
 
-                const effect = effects[parent ? parent : property]
+                target[property as keyof typeof target] = reactive(
+                    value,
+                    parentValue,
+                );
+
+                globalEffect();
+
+                const effect = effects[parentValue];
 
                 if (effect) {
-                    effect()
+                    effect();
                 }
             }
 
