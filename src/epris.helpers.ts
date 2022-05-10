@@ -1,7 +1,4 @@
 import Epris from './epris';
-import config from './epris.config';
-
-const prefix = config.prefix + 'on:';
 
 export const defineActionProperties = (context: Epris) => {
     Object
@@ -16,17 +13,10 @@ export const defineActionProperties = (context: Epris) => {
         });
 };
 
-export const removeAllChildNodes = (parent: any) => {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
 export const bindEffects = (context: Epris) => {
     Object
         .entries(context.effects)
         .forEach(([name, func]) => {
-            // console.log(func)
-            // @ts-ignore
             context.effects[name] = func.bind(context);
         });
 };
@@ -48,17 +38,9 @@ export const defineStateProperties = (context: Epris) => {
         });
 };
 
-export const stringToBoolean = (str: string) => {
-    switch (str.toLowerCase().trim()) {
-        case 'true':
-            return true;
-
-        case 'false':
-        case null:
-            return false;
-
-        default:
-            return Boolean(str);
+export const removeAllChildNodes = (parent: any) => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
     }
 };
 
