@@ -22,7 +22,7 @@ import {
 
 import { h } from './epris.vdom';
 import Epris from './epris';
-import { detectBool, detectBoolean } from './epris.helpers';
+import { detectBoolean } from './epris.helpers';
 
 export const chainElementKeys = (element: any, state: any) => {
     const data = element.data;
