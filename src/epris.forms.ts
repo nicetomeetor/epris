@@ -12,9 +12,10 @@ const controlledTags = [
     ElementType.SELECT,
 ];
 
+
 const findType = (node: VirtualNode) => {
     const { props, tag, el } = node;
-    
+
     switch (tag as ElementType) {
         case ElementType.INPUT:
             const type = props.type;

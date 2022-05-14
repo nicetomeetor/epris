@@ -20,7 +20,7 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
-    const on = node.on;
+    const on = node.on || {};
 
     const el = document.createElement(tag);
 
@@ -40,6 +40,7 @@ export const mount = (node: VirtualNode, container: HTMLElement) => {
     }
 
     node.el = el;
+    control(node)
     container.appendChild(el);
 };
 

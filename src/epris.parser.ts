@@ -1,15 +1,34 @@
-import { attachEvent, isEvent, updateEvents } from './epris.events';
-import { isDirective, useDirective } from './epris.directives';
-import Epris from './epris';
-import { regExpEmpty, regExpFun, regPropModifierName, regPropModifierValue } from './epris.regexp';
+import {
+    attachEvent,
+    isEvent,
+} from './epris.events';
+
+import {
+    isDirective,
+    useDirective,
+} from './epris.directives';
+
+import {
+    regExpEmpty,
+    regExpFun,
+    regPropModifierName,
+    regPropModifierValue,
+} from './epris.regexp';
+
+import {
+    Element,
+    VirtualNode,
+} from './epris.types';
+
 import { h } from './epris.vdom';
-import { Element, VirtualNode } from './epris.types';
+import Epris from './epris';
+import { detectBool, detectBoolean } from './epris.helpers';
 
 export const chainElementKeys = (element: any, state: any) => {
     const data = element.data;
     const keys = element.keys;
     let chainedData = state[data];
-    // console.log(state[data], element)
+
     keys.forEach((key: string) => {
         chainedData = chainedData[key];
     });
@@ -70,7 +89,7 @@ export const mutate = (
     const children = element.children;
     const n = attributes.length;
 
-    let on: any = {};
+    let on: any = (<Element>element).on || {};
     const props: { [key: string]: any } = {}; // ?
 
     for (let i = 0; i < n; i++) {
@@ -92,7 +111,7 @@ export const mutate = (
                 propModifierValue,
             });
         } else if (isEvent(propName)) {
-            on = updateOn({
+            (<Element>element).on = updateOn({
                 propValue,
                 context,
                 propName,
@@ -102,7 +121,6 @@ export const mutate = (
         }
     }
 
-    (<Element>element).on = on;
     (<Element>element).props = props; // ?
 
     if (children.length > 0) {
@@ -119,12 +137,12 @@ export const parse = (node: HTMLElement): VirtualNode => {
 
     const children = node.children;
 
-    const on = (<Element>node).on;
+    const on = (<Element>node).on || {};
     const p = (<Element>node).props; // ?
 
     for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
-        props[propName] = attributes[i].value;
+        props[propName] = detectBoolean(attributes[i].value);
     }
 
     if (children.length > 0) {
