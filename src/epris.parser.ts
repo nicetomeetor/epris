@@ -24,7 +24,10 @@ import { h } from './epris.vdom';
 import Epris from './epris';
 import { detectBoolean } from './epris.helpers';
 
-export const chainElementKeys = (element: any, state: any) => {
+export const chainElementKeys = (
+    element: any,
+    state: any,
+) => {
     const data = element.data;
     const keys = element.keys;
     let chainedData = state[data];
@@ -36,7 +39,10 @@ export const chainElementKeys = (element: any, state: any) => {
     return chainedData;
 };
 
-const chainElementsKeys = (elements: any, state: any) => {
+const chainElementsKeys = (
+    elements: any,
+    state: any,
+) => {
     return elements.map((element: any) => chainElementKeys(element, state));
 };
 
@@ -81,16 +87,29 @@ export const parseDirective = (propValue: string) => {
     return parseArg(values);
 };
 
+const determineProp = (
+    propModifierName: string,
+    propName: string,
+) => {
+    if (isDirective(propModifierName)) {
+        return 'directive';
+    } else if (isEvent(propName)) {
+        return 'event';
+    } else {
+        return null;
+    }
+};
+
 export const mutate = (
-    element: HTMLElement,
+    node: HTMLElement,
     context: Epris,
 ) => {
-    const attributes = Array.from(element.attributes);
-    const children = element.children;
+    const attributes = Array.from(node.attributes);
+    const children = node.children;
     const n = attributes.length;
+    const element = node as Element;
 
-    let on: any = (<Element>element).on || {};
-    const props: { [key: string]: any } = {}; // ?
+    element.on = element.on || {};
 
     for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
@@ -101,27 +120,24 @@ export const mutate = (
             propModifierValue,
         } = findModifiers(propName, propValue);
 
-        if (isDirective(propModifierName)) {
-            updateDirective({
+        const key = determineProp(propModifierName, propName);
+
+        if (!key) {
+            continue;
+        }
+
+        findFun(
+            key,
+            {
                 propValue,
                 context,
-                node: element,
+                node,
                 propName,
                 propModifierName,
                 propModifierValue,
-            });
-        } else if (isEvent(propName)) {
-            (<Element>element).on = updateOn({
-                propValue,
-                context,
-                propName,
                 element,
-                on,
             });
-        }
     }
-
-    (<Element>element).props = props; // ?
 
     if (children.length > 0) {
         for (let i = 0; i < children.length; i++) {
@@ -131,14 +147,13 @@ export const mutate = (
 };
 
 export const parse = (node: HTMLElement): VirtualNode => {
-    const attributes = node.attributes;
+    const element = node as Element;
+
+    const attributes = element.attributes;
     const n = attributes.length;
     const props: any = {};
 
-    const children = node.children;
-
-    const on = (<Element>node).on || {};
-    const p = (<Element>node).props; // ?
+    const children = element.children;
 
     for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
@@ -153,9 +168,19 @@ export const parse = (node: HTMLElement): VirtualNode => {
                 nodeChildren.push(parsed);
             }
         }
-        return h(node.tagName, props, nodeChildren, on);
+        return h(
+            element.tagName,
+            props,
+            nodeChildren,
+            element.on,
+        );
     } else {
-        return h(node.tagName, props, node.textContent || '', on);
+        return h(
+            element.tagName,
+            props,
+            element.textContent || '',
+            element.on,
+        );
     }
 };
 
@@ -172,20 +197,36 @@ const findModifiers = (propName: string, propValue: string) => {
     };
 };
 
-const updateOn = ({ propValue, context, propName, on, element }: any) => {
+const updateOn = (
+    {
+        propValue,
+        context,
+        propName,
+        element,
+    }: any,
+) => {
     const actions = context.actions;
     const state = context.state;
+
     element.removeAttribute(propName);
 
     const { args, action } = parseEvent(propValue);
     const handler: EventListener = actions[action];
     const chainedArgs = chainElementsKeys(parseArgs(args), state);
-    on = attachEvent(on, propName, handler, chainedArgs);
 
-    return on;
+    attachEvent(element, propName, handler, chainedArgs);
 };
 
-const updateDirective = ({ propValue, context, node, propName, propModifierName, propModifierValue }: any) => {
+const updateDirective = (
+    {
+        propValue,
+        context,
+        node,
+        propName,
+        propModifierName,
+        propModifierValue,
+    }: any,
+) => {
     const parsedDirective = parseDirective(propValue);
     node.removeAttribute(propName);
 
@@ -200,4 +241,27 @@ const updateDirective = ({ propValue, context, node, propName, propModifierName,
             propName,
         },
     );
+};
+
+// const updateProp = (
+//     {
+//         node,
+//         propName,
+//         propValue
+//     }: any
+// ) => {
+//     console.log(node.props, propName, propValue)
+// }
+
+const funcs: { [key: string]: Function } = {
+    'directive': updateDirective,
+    'event': updateOn,
+    // 'prop': updateProp,
+};
+
+const findFun = (
+    key: string,
+    data: any,
+) => {
+    funcs[key](data);
 };
