@@ -1,5 +1,5 @@
 import config from './epris.config';
-import { VirtualNode } from './epris.types';
+import { Element, VirtualNode } from './epris.types';
 
 const prefix = config.prefix + 'on:';
 
@@ -64,7 +64,7 @@ export const updateEvents = (
 };
 
 export const attachEvent = (
-    on: { [key: string]: EventListener },
+    element: Element,
     propName: string,
     handler: EventListener,
     args: any[],
@@ -72,13 +72,11 @@ export const attachEvent = (
     const event = propName.slice(prefix.length, propName.length);
     const value = args.length > 0 ? handler.bind(null, ...args) : handler;
 
-    Object.defineProperty(on, event, {
+    Object.defineProperty(element.on, event, {
         value,
         writable: true,
         enumerable: true,
         configurable: true,
     });
-
-    return on;
 };
 
