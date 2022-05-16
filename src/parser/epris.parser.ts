@@ -30,6 +30,7 @@ export const chainElementKeys = (
 ) => {
     const data = element.data;
     const keys = element.keys;
+
     let chainedData = state[data];
 
     keys.forEach((key: string) => {
@@ -42,9 +43,7 @@ export const chainElementKeys = (
 const chainElementsKeys = (
     elements: any,
     state: any,
-) => {
-    return elements.map((element: any) => chainElementKeys(element, state));
-};
+) => elements.map((element: any) => chainElementKeys(element, state));
 
 const parseArg = (arg: Array<string>) => {
     const data = arg[0];
@@ -58,6 +57,7 @@ const parseArg = (arg: Array<string>) => {
 
 const parseArgs = (args: Array<Array<string>>) => {
     const elements: Array<any> = [];
+
     args.forEach((arg: Array<string>) => {
         const element = parseArg(arg);
         elements.push(element);
@@ -95,9 +95,8 @@ const determineProp = (
         return 'directive';
     } else if (isEvent(propName)) {
         return 'event';
-    } else {
-        return null;
     }
+    return null;
 };
 
 export const mutate = (
@@ -118,30 +117,39 @@ export const mutate = (
         const {
             propModifierName,
             propModifierValue,
-        } = findModifiers(propName, propValue);
+        } = findModifiers(
+            propName,
+            propValue
+        );
 
-        const key = determineProp(propModifierName, propName);
+        // TODO key?
 
-        if (!key) {
-            continue;
+        const key = determineProp(
+            propModifierName,
+            propName
+        );
+
+        if (key) {
+            findFun(
+                key,
+                {
+                    propValue,
+                    context,
+                    node,
+                    propName,
+                    propModifierName,
+                    propModifierValue,
+                    element,
+                });
         }
-
-        findFun(
-            key,
-            {
-                propValue,
-                context,
-                node,
-                propName,
-                propModifierName,
-                propModifierValue,
-                element,
-            });
     }
 
     if (children.length > 0) {
         for (let i = 0; i < children.length; i++) {
-            mutate(children[i] as HTMLElement, context);
+            mutate(
+                children[i] as HTMLElement,
+                context
+            );
         }
     }
 };
@@ -157,17 +165,22 @@ export const parse = (node: HTMLElement): VirtualNode => {
 
     for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
-        props[propName] = detectBoolean(attributes[i].value);
+        const propValue = attributes[i].value;
+
+        props[propName] = detectBoolean(propValue);
     }
 
     if (children.length > 0) {
         const nodeChildren = [];
+
         for (let i = 0; i < children.length; i++) {
             const parsed = parse(children[i] as HTMLElement);
+
             if (parsed) {
                 nodeChildren.push(parsed);
             }
         }
+
         return h(
             element.tagName,
             props,
@@ -243,20 +256,9 @@ const updateDirective = (
     );
 };
 
-// const updateProp = (
-//     {
-//         node,
-//         propName,
-//         propValue
-//     }: any
-// ) => {
-//     console.log(node.props, propName, propValue)
-// }
-
 const funcs: { [key: string]: Function } = {
     'directive': updateDirective,
     'event': updateOn,
-    // 'prop': updateProp,
 };
 
 const findFun = (
