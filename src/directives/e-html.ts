@@ -1,4 +1,4 @@
-import { chainElementKeys } from '../parser/epris.parser';
+import { chainElementKeys } from '../parser/chain';
 
 export default (
     {

@@ -1,7 +1,5 @@
-import {
-    chainElementKeys,
-    mutate,
-} from '../parser/epris.parser';
+import { mutate } from '../parser/parse';
+import { chainElementKeys } from '../parser/chain';
 
 export default (
     {

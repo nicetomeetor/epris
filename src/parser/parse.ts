@@ -1,14 +1,4 @@
 import {
-    attachEvent,
-    isEvent,
-} from '../epris.events';
-
-import {
-    isDirective,
-    useDirective,
-} from '../epris.directives';
-
-import {
     regExpEmpty,
     regExpFun,
     regPropModifierName,
@@ -23,27 +13,9 @@ import {
 import { h } from '../epris.vdom';
 import Epris from '../epris';
 import { detectBoolean } from '../epris.helpers';
-
-export const chainElementKeys = (
-    element: any,
-    state: any,
-) => {
-    const data = element.data;
-    const keys = element.keys;
-
-    let chainedData = state[data];
-
-    keys.forEach((key: string) => {
-        chainedData = chainedData[key];
-    });
-
-    return chainedData;
-};
-
-const chainElementsKeys = (
-    elements: any,
-    state: any,
-) => elements.map((element: any) => chainElementKeys(element, state));
+import { useUpdateFunc } from './update';
+import { isEvent } from '../epris.events';
+import { isDirective } from '../epris.directives';
 
 const parseArg = (arg: Array<string>) => {
     const data = arg[0];
@@ -55,7 +27,7 @@ const parseArg = (arg: Array<string>) => {
     };
 };
 
-const parseArgs = (args: Array<Array<string>>) => {
+export const parseArgs = (args: Array<Array<string>>) => {
     const elements: Array<any> = [];
 
     args.forEach((arg: Array<string>) => {
@@ -66,7 +38,7 @@ const parseArgs = (args: Array<Array<string>>) => {
     return elements;
 };
 
-const parseEvent = (propValue: string) => {
+export const parseEvent = (propValue: string) => {
     const values = propValue.match(regExpFun);
     const action = values[1];
     const rawArgs = values[2];
@@ -117,7 +89,7 @@ export const mutate = (
         const {
             propModifierName,
             propModifierValue,
-        } = findModifiers(
+        } = parseModifiers(
             propName,
             propValue
         );
@@ -130,7 +102,7 @@ export const mutate = (
         );
 
         if (key) {
-            findFun(
+            useUpdateFunc(
                 key,
                 {
                     propValue,
@@ -197,7 +169,7 @@ export const parse = (node: HTMLElement): VirtualNode => {
     }
 };
 
-const findModifiers = (propName: string, propValue: string) => {
+const parseModifiers = (propName: string, propValue: string) => {
     const rawPropModifierName = propName.match(regPropModifierName);
     const propModifierName = rawPropModifierName ? rawPropModifierName[1] : propName;
 
@@ -210,60 +182,3 @@ const findModifiers = (propName: string, propValue: string) => {
     };
 };
 
-const updateOn = (
-    {
-        propValue,
-        context,
-        propName,
-        element,
-    }: any,
-) => {
-    const actions = context.actions;
-    const state = context.state;
-
-    element.removeAttribute(propName);
-
-    const { args, action } = parseEvent(propValue);
-    const handler: EventListener = actions[action];
-    const chainedArgs = chainElementsKeys(parseArgs(args), state);
-
-    attachEvent(element, propName, handler, chainedArgs);
-};
-
-const updateDirective = (
-    {
-        propValue,
-        context,
-        node,
-        propName,
-        propModifierName,
-        propModifierValue,
-    }: any,
-) => {
-    const parsedDirective = parseDirective(propValue);
-    node.removeAttribute(propName);
-
-    useDirective(
-        propModifierName,
-        {
-            rawValue: parsedDirective,
-            node,
-            context,
-            propModifierValue,
-            propModifierName,
-            propName,
-        },
-    );
-};
-
-const funcs: { [key: string]: Function } = {
-    'directive': updateDirective,
-    'event': updateOn,
-};
-
-const findFun = (
-    key: string,
-    data: any,
-) => {
-    funcs[key](data);
-};
