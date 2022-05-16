@@ -6,7 +6,7 @@ import {
 import {
     mutate,
     parse,
-} from './epris.parser';
+} from './parser/epris.parser';
 
 import {
     reactive,

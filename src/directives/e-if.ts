@@ -1,7 +1,7 @@
 import {
     chainElementKeys,
     mutate,
-} from '../epris.parser';
+} from '../parser/epris.parser';
 
 export default (
     {

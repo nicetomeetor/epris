@@ -1,28 +1,28 @@
 import {
     attachEvent,
     isEvent,
-} from './epris.events';
+} from '../epris.events';
 
 import {
     isDirective,
     useDirective,
-} from './epris.directives';
+} from '../epris.directives';
 
 import {
     regExpEmpty,
     regExpFun,
     regPropModifierName,
     regPropModifierValue,
-} from './epris.regexp';
+} from '../epris.regexp';
 
 import {
     Element,
     VirtualNode,
-} from './epris.types';
+} from '../epris.types';
 
-import { h } from './epris.vdom';
-import Epris from './epris';
-import { detectBoolean } from './epris.helpers';
+import { h } from '../epris.vdom';
+import Epris from '../epris';
+import { detectBoolean } from '../epris.helpers';
 
 export const chainElementKeys = (
     element: any,

@@ -1,4 +1,4 @@
-import { mutate } from '../epris.parser';
+import { mutate } from '../parser/epris.parser';
 import { regExpFor } from '../epris.regexp';
 import { removeAllChildNodes } from '../epris.helpers';
 
