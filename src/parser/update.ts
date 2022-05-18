@@ -4,9 +4,21 @@ import {
     parseEvent,
 } from './parse';
 
-import { chainElementsKeys } from './chain';
-import { attachEvent } from '../epris.events';
-import { useDirective } from '../epris.directives';
+import {
+    chainElementsKeys,
+} from './chain';
+
+import {
+    attachEvent,
+} from '../epris.events';
+
+import {
+    useDirective,
+} from '../epris.directives';
+
+import {
+    createFuncsObject,
+} from '../epris.helpers';
 
 const updateOn = (
     {
@@ -28,7 +40,7 @@ const updateOn = (
 
     const chainedArgs = chainElementsKeys(
         parseArgs(args),
-        state
+        state,
     );
 
     attachEvent(
@@ -64,10 +76,20 @@ const updateDirective = (
     );
 };
 
-const updateFuncs: { [key: string]: Function } = {
-    'directive': updateDirective,
-    'event': updateOn,
-};
+const updateNames: string[] = [
+    'directive',
+    'event',
+];
+
+const updateFuncs: Function[] = [
+    updateDirective,
+    updateOn,
+];
+
+const updates: { [key: string]: Function } = createFuncsObject(
+    updateNames,
+    updateFuncs,
+);
 
 export const useUpdateFunc = (
     key: string,
@@ -78,5 +100,5 @@ export const useUpdateFunc = (
 
     element.removeAttribute(propName);
 
-    updateFuncs[key](data);
+    updates[key](data);
 };
