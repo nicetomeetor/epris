@@ -5,14 +5,14 @@ export default (
     {
         rawValue,
         context,
-        node,
+        element,
     }: any,
 ) => {
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
 
-    const sibling = node.nextElementSibling;
-    const parent = node.parentElement;
+    const sibling = element.nextElementSibling;
+    const parent = element.parentElement;
 
     const siblingStatus = sibling && sibling.hasAttribute('e-else');
 
@@ -21,7 +21,7 @@ export default (
             parent.removeChild(sibling);
         }
     } else {
-        parent.removeChild(node);
+        parent.removeChild(element);
     }
 
     if (siblingStatus) {

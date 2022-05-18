@@ -5,7 +5,7 @@ import { removeAllChildNodes } from '../epris.helpers';
 export default (
     {
         context,
-        node,
+        element,
         rawValue,
     }: any,
 ) => {
@@ -13,7 +13,7 @@ export default (
     const state = context.state;
     const effects = context.effects;
 
-    const clone = node.cloneNode(true);
+    const clone = element.cloneNode(true);
 
     const split = rawValue.data.match(regExpFor);
 
@@ -21,14 +21,14 @@ export default (
     const arrayKey = split[2];
     const array = state[arrayKey];
 
-    const parent = node.parentElement;
+    const parent = element.parentElement;
 
-    array.forEach((element: any) => {
+    array.forEach((elem: any) => {
         const loopClone = clone.cloneNode(true);
         const loopState = {};
 
         Object.defineProperty(loopState, key, {
-            value: element,
+            value: elem,
             writable: true,
             enumerable: true,
             configurable: true,
@@ -44,9 +44,9 @@ export default (
 
         mutate(loopClone, loopContext);
 
-        parent.insertBefore(loopClone, node);
+        parent.insertBefore(loopClone, element);
     });
 
-    removeAllChildNodes(node);
-    parent.removeChild(node);
+    removeAllChildNodes(element);
+    parent.removeChild(element);
 }

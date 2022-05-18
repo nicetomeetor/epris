@@ -4,9 +4,9 @@ export default (
     {
         rawValue,
         context,
-        node,
+        element,
     }: any,
 ) => {
     const state = context.state;
-    node.innerText = chainElementKeys(rawValue, state);
+    element.innerText = chainElementKeys(rawValue, state);
 }

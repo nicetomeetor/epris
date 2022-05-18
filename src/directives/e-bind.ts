@@ -5,13 +5,13 @@ export default (
         rawValue,
         context,
         propModifierValue,
-        node,
+        element,
         propName,
     }: any,
 ) => {
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
 
-    node.removeAttribute(propName);
-    node.setAttribute(propModifierValue, parsedValue);
+    element.removeAttribute(propName);
+    element.setAttribute(propModifierValue, parsedValue);
 }
