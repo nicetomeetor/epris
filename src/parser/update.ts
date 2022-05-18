@@ -19,20 +19,31 @@ const updateOn = (
     const actions = context.actions;
     const state = context.state;
 
-    element.removeAttribute(propName);
+    const {
+        args,
+        action,
+    } = parseEvent(propValue);
 
-    const { args, action } = parseEvent(propValue);
     const handler: EventListener = actions[action];
-    const chainedArgs = chainElementsKeys(parseArgs(args), state);
 
-    attachEvent(element, propName, handler, chainedArgs);
+    const chainedArgs = chainElementsKeys(
+        parseArgs(args),
+        state
+    );
+
+    attachEvent(
+        element,
+        propName,
+        handler,
+        chainedArgs,
+    );
 };
 
 const updateDirective = (
     {
         propValue,
         context,
-        node,
+        element,
         propName,
         propModifierName,
         propModifierValue,
@@ -44,7 +55,7 @@ const updateDirective = (
         propModifierName,
         {
             rawValue: parsedDirective,
-            node,
+            element,
             context,
             propModifierValue,
             propModifierName,
@@ -63,9 +74,9 @@ export const useUpdateFunc = (
     data: any,
 ) => {
     const propName = data.propName;
-    const node = data.node;
+    const element = data.element;
 
-    node.removeAttribute(propName);
+    element.removeAttribute(propName);
 
     updateFuncs[key](data);
 };

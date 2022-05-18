@@ -91,23 +91,20 @@ export const mutate = (
             propModifierValue,
         } = parseModifiers(
             propName,
-            propValue
+            propValue,
         );
 
-        // TODO key?
-
-        const key = determineProp(
+        const determinedProp = determineProp(
             propModifierName,
-            propName
+            propName,
         );
 
-        if (key) {
+        if (determinedProp) {
             useUpdateFunc(
-                key,
+                determinedProp,
                 {
                     propValue,
                     context,
-                    node,
                     propName,
                     propModifierName,
                     propModifierValue,
@@ -120,7 +117,7 @@ export const mutate = (
         for (let i = 0; i < children.length; i++) {
             mutate(
                 children[i] as HTMLElement,
-                context
+                context,
             );
         }
     }

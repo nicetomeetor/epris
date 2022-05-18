@@ -36,7 +36,7 @@ export default class Epris {
 
     constructor(object: EprisObject) {
         this.state = reactive(object.state);
-        this.actions = object.actions|| {};
+        this.actions = object.actions || {};
         this.effects = object.effects || {};
 
         defineActionProperties(this);
