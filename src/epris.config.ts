@@ -1,4 +1,6 @@
-import { EprisConfig } from './epris.types';
+import {
+    EprisConfig,
+} from './epris.types';
 
 const config: EprisConfig = {
     prefix: 'e-',

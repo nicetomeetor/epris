@@ -5,7 +5,9 @@ import eBind from './directives/e-bind';
 import eHTML from './directives/e-html';
 import config from './epris.config';
 
-import { createFuncsObject } from './epris.helpers';
+import {
+    createFuncsObject,
+} from './epris.helpers';
 
 const addPrefix = (directiveName: string): string => config.prefix + directiveName;
 
