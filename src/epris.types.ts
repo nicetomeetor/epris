@@ -1,5 +1,9 @@
 import Epris from './epris';
 
+import {
+    Element,
+} from './epris.interfaces';
+
 export type EprisConfig = {
     prefix: string;
 }
@@ -20,8 +24,8 @@ export type VirtualNode = {
     tag: string,
     props: { [key: string]: any },
     children: Array<VirtualNode> | string,
-    el?: HTMLElement,
     on: { [key: string]: EventListener },
+    el?: HTMLElement,
     key?: number,
 };
 
@@ -32,19 +36,14 @@ export type EprisObject = {
     effects: Effects,
 };
 
-export interface Element extends HTMLElement {
-    on?: { [key: string]: EventListener };
-    props?: { [key: string]: any };
-}
-
 export type UpdateData = {
-    rawValue?: any,
-    propValue?: string,
     context: Epris,
+    element: Element,
+    rawValue?: ChainData,
+    propValue?: string,
     propName?: string,
     propModifierName?: string,
     propModifierValue?: string,
-    element: Element,
 };
 
 export type ChainData = {

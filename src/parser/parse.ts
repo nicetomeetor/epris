@@ -10,9 +10,13 @@ import {
 import {
     ActionData,
     ChainData,
-    Element, PropModifiers,
+    PropModifiers,
     VirtualNode,
 } from '../epris.types';
+
+import {
+    Element,
+} from '../epris.interfaces';
 
 import {
     h,

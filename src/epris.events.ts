@@ -1,9 +1,12 @@
 import config from './epris.config';
 
 import {
-    Element,
     VirtualNode,
 } from './epris.types';
+
+import {
+    Element,
+} from './epris.interfaces';
 
 const prefix = config.prefix + 'on:';
 

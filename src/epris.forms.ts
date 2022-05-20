@@ -1,4 +1,10 @@
-import { VirtualNode } from './epris.types';
+import {
+    VirtualNode,
+} from './epris.types';
+
+import {
+    ControlledElement,
+} from './epris.interfaces';
 
 enum ElementType {
     INPUT = 'INPUT',
@@ -11,12 +17,6 @@ const controlledTags = [
     ElementType.TEXTAREA,
     ElementType.SELECT,
 ];
-
-export interface ControlledElement extends HTMLElement {
-    checked: boolean,
-    value: string,
-}
-
 
 const findType = (node: VirtualNode) => {
     const {

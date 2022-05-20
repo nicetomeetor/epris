@@ -20,6 +20,6 @@ export const chainElementKeys = (
 };
 
 export const chainElementsKeys = (
-    elements: Array<ChainData>,
+    elements: ChainData[],
     state: State,
 ): any[] => elements.map((element: ChainData) => chainElementKeys(element, state));

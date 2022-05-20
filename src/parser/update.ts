@@ -24,10 +24,13 @@ import {
     ActionData,
     Actions,
     ChainData,
-    Element,
     State,
     UpdateData,
 } from '../epris.types';
+
+import {
+    Element,
+} from '../epris.interfaces';
 
 const updateOn = (
     {
