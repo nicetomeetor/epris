@@ -20,25 +20,34 @@ import {
     createFuncsObject,
 } from '../epris.helpers';
 
+import {
+    ActionData,
+    Actions,
+    ChainData,
+    Element,
+    State,
+    UpdateData,
+} from '../epris.types';
+
 const updateOn = (
     {
         propValue,
         context,
         propName,
         element,
-    }: any,
-) => {
-    const actions = context.actions;
-    const state = context.state;
+    }: UpdateData,
+): void => {
+    const actions: Actions = context.actions;
+    const state: State = context.state;
 
     const {
         args,
         action,
-    } = parseEvent(propValue);
+    }: ActionData = parseEvent(propValue);
 
     const handler: EventListener = actions[action];
 
-    const chainedArgs = chainElementsKeys(
+    const chainedArgs: any[] = chainElementsKeys(
         parseArgs(args),
         state,
     );
@@ -59,14 +68,14 @@ const updateDirective = (
         propName,
         propModifierName,
         propModifierValue,
-    }: any,
-) => {
-    const parsedDirective = parseDirective(propValue);
+    }: UpdateData,
+): void => {
+    const rawValue: ChainData = parseDirective(propValue);
 
     useDirective(
         propModifierName,
         {
-            rawValue: parsedDirective,
+            rawValue,
             element,
             context,
             propModifierValue,
@@ -93,10 +102,10 @@ const updates: { [key: string]: Function } = createFuncsObject(
 
 export const useUpdateFunc = (
     key: string,
-    data: any,
-) => {
-    const propName = data.propName;
-    const element = data.element;
+    data: UpdateData,
+): void => {
+    const propName: string = data.propName;
+    const element: Element = data.element;
 
     element.removeAttribute(propName);
 

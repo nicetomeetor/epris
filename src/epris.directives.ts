@@ -9,6 +9,10 @@ import {
     createFuncsObject,
 } from './epris.helpers';
 
+import {
+    UpdateData,
+} from './epris.types';
+
 const addPrefix = (directiveName: string): string => config.prefix + directiveName;
 
 const directivesNames: string[] = [
@@ -36,7 +40,7 @@ export const isDirective = (directive: string) => directivesNames.includes(direc
 
 export const useDirective = (
     prop: string,
-    data: any,
+    data: UpdateData,
 ) => directives[prop](data);
 
 

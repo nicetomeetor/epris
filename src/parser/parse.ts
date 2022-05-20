@@ -8,7 +8,9 @@ import {
 } from '../epris.regexp';
 
 import {
-    Element,
+    ActionData,
+    ChainData,
+    Element, PropModifiers,
     VirtualNode,
 } from '../epris.types';
 
@@ -32,7 +34,7 @@ import {
     isDirective,
 } from '../epris.directives';
 
-const parseArg = (arg: Array<string>) => {
+const parseArg = (arg: string[]): ChainData => {
     const data = arg[0];
     const keys = arg.slice(1);
 
@@ -42,18 +44,12 @@ const parseArg = (arg: Array<string>) => {
     };
 };
 
-export const parseArgs = (args: Array<Array<string>>) => {
-    const elements: Array<any> = [];
+export const parseArgs = (
+    args: string[][],
+): ChainData[] => args.map(parseArg);
 
-    args.forEach((arg: Array<string>) => {
-        const element = parseArg(arg);
-        elements.push(element);
-    });
 
-    return elements;
-};
-
-export const parseEvent = (propValue: string) => {
+export const parseEvent = (propValue: string): ActionData => {
     const values = propValue.match(regExpFun);
     const action = values[1];
     const rawArgs = values[2];
@@ -68,7 +64,7 @@ export const parseEvent = (propValue: string) => {
     };
 };
 
-export const parseDirective = (propValue: string) => {
+export const parseDirective = (propValue: string): ChainData => {
     const values = propValue.split('.');
 
     return parseArg(values);
@@ -77,23 +73,26 @@ export const parseDirective = (propValue: string) => {
 const determineProp = (
     propModifierName: string,
     propName: string,
-) => {
+): string => {
+    let value: string = '';
+
     if (isDirective(propModifierName)) {
-        return 'directive';
+        value = 'directive';
     } else if (isEvent(propName)) {
-        return 'event';
+        value =  'event';
     }
-    return null;
+
+    return value;
 };
 
 export const mutate = (
-    node: HTMLElement,
+    htmlElement: HTMLElement,
     context: Epris,
-) => {
-    const attributes = Array.from(node.attributes);
-    const children = node.children;
+): void => {
+    const attributes = Array.from(htmlElement.attributes);
+    const children = htmlElement.children;
     const n = attributes.length;
-    const element = node as Element;
+    const element = htmlElement as Element;
 
     element.on = element.on || {};
 
@@ -104,7 +103,7 @@ export const mutate = (
         const {
             propModifierName,
             propModifierValue,
-        } = parseModifiers(
+        }: PropModifiers = parseModifiers(
             propName,
             propValue,
         );
@@ -114,7 +113,7 @@ export const mutate = (
             propName,
         );
 
-        if (determinedProp) {
+        if (determinedProp.length > 0) {
             useUpdateFunc(
                 determinedProp,
                 {
@@ -138,14 +137,14 @@ export const mutate = (
     }
 };
 
-export const parse = (node: HTMLElement): VirtualNode => {
-    const element = node as Element;
+export const parse = (htmlElement: HTMLElement): VirtualNode => {
+    const element = htmlElement as Element;
 
     const attributes = element.attributes;
     const n = attributes.length;
-    const props: any = {};
-
     const children = element.children;
+
+    const props: { [key: string]: any } = {};
 
     for (let i = 0; i < n; i++) {
         const propName = attributes[i].name;
@@ -181,7 +180,10 @@ export const parse = (node: HTMLElement): VirtualNode => {
     }
 };
 
-const parseModifiers = (propName: string, propValue: string) => {
+const parseModifiers = (
+    propName: string,
+    propValue: string,
+): PropModifiers => {
     const rawPropModifierName = propName.match(regPropModifierName);
     const propModifierName = rawPropModifierName ? rawPropModifierName[1] : propName;
 

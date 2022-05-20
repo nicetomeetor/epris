@@ -5,15 +5,15 @@ export type EprisConfig = {
 }
 
 export type State = {
-    [key: string]: any
+    [key: string]: any,
 }
 
 export type Effects = {
-    [key: string]: any
+    [key: string]: Function,
 }
 
 export type Actions = {
-    [key: string]: EventListener
+    [key: string]: EventListener,
 }
 
 export type VirtualNode = {
@@ -22,7 +22,7 @@ export type VirtualNode = {
     children: Array<VirtualNode> | string,
     el?: HTMLElement,
     on: { [key: string]: EventListener },
-    key?: number
+    key?: number,
 };
 
 export type EprisObject = {
@@ -30,19 +30,34 @@ export type EprisObject = {
     state: State,
     actions: Actions,
     effects: Effects,
-}
+};
 
 export interface Element extends HTMLElement {
-    on?: { [key: string]: EventListener }
-    props?: { [key: string]: any }
+    on?: { [key: string]: EventListener };
+    props?: { [key: string]: any };
 }
 
 export type UpdateData = {
-    rawValue: any,
-    propValue: string,
+    rawValue?: any,
+    propValue?: string,
     context: Epris,
-    propName: string,
+    propName?: string,
+    propModifierName?: string,
+    propModifierValue?: string,
+    element: Element,
+};
+
+export type ChainData = {
+    keys: string[],
+    data: string,
+};
+
+export type PropModifiers = {
     propModifierName: string,
     propModifierValue: string,
-    element: Element,
-}
+};
+
+export type ActionData = {
+    action: string,
+    args: string[][],
+};
