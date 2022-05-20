@@ -1,11 +1,16 @@
-export const chainElementKeys = (
-    element: any,
-    state: any,
-) => {
-    const data = element.data;
-    const keys = element.keys;
+import {
+    ChainData,
+    State,
+} from '../epris.types';
 
-    let chainedData = state[data];
+export const chainElementKeys = (
+    element: ChainData,
+    state: State,
+): any => {
+    const data: string = element.data;
+    const keys: string[] = element.keys;
+
+    let chainedData: any = state[data];
 
     keys.forEach((key: string) => {
         chainedData = chainedData[key];
@@ -15,6 +20,6 @@ export const chainElementKeys = (
 };
 
 export const chainElementsKeys = (
-    elements: any,
-    state: any,
-) => elements.map((element: any) => chainElementKeys(element, state));
+    elements: Array<ChainData>,
+    state: State,
+): any[] => elements.map((element: ChainData) => chainElementKeys(element, state));
