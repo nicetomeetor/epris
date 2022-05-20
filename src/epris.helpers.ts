@@ -1,6 +1,6 @@
 import Epris from './epris';
 
-export const defineActionProperties = (context: Epris) => {
+export const defineActionProperties = (context: Epris): void => {
     Object
         .entries(context.actions)
         .forEach(([name, func]) => {
@@ -13,7 +13,7 @@ export const defineActionProperties = (context: Epris) => {
         });
 };
 
-export const bindEffects = (context: Epris) => {
+export const bindEffects = (context: Epris): void => {
     Object
         .entries(context.effects)
         .forEach(([name, func]) => {
@@ -21,7 +21,7 @@ export const bindEffects = (context: Epris) => {
         });
 };
 
-export const defineStateProperties = (context: Epris) => {
+export const defineStateProperties = (context: Epris): void => {
     Object
         .keys(context.state)
         .forEach((key) => {
@@ -38,13 +38,13 @@ export const defineStateProperties = (context: Epris) => {
         });
 };
 
-export const removeAllChildNodes = (parent: any) => {
+export const removeAllChildNodes = (parent: Element): void => {
     while (parent.firstChild) {
         parent.removeChild(parent.firstChild);
     }
 };
 
-export const detectBoolean = (str: string) => {
+export const detectBoolean = (str: string): string | boolean => {
     switch (str) {
         case 'true':
             return true;
