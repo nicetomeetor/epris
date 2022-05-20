@@ -36,11 +36,11 @@ const directives: { [key: string]: Function } = createFuncsObject(
     directivesFuncs,
 );
 
-export const isDirective = (directive: string) => directivesNames.includes(directive);
+export const isDirective = (directive: string): boolean => directivesNames.includes(directive);
 
 export const useDirective = (
     prop: string,
     data: UpdateData,
-) => directives[prop](data);
+): void => directives[prop](data);
 
 
