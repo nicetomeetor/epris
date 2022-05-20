@@ -1,3 +1,5 @@
+import Epris from '../epris';
+
 import {
     regExpEmpty,
     regExpFun,
@@ -10,12 +12,25 @@ import {
     VirtualNode,
 } from '../epris.types';
 
-import { h } from '../epris.vdom';
-import Epris from '../epris';
-import { detectBoolean } from '../epris.helpers';
-import { useUpdateFunc } from './update';
-import { isEvent } from '../epris.events';
-import { isDirective } from '../epris.directives';
+import {
+    h,
+} from '../epris.vdom';
+
+import {
+    detectBoolean,
+} from '../epris.helpers';
+
+import {
+    useUpdateFunc,
+} from './update';
+
+import {
+    isEvent,
+} from '../epris.events';
+
+import {
+    isDirective,
+} from '../epris.directives';
 
 const parseArg = (arg: Array<string>) => {
     const data = arg[0];

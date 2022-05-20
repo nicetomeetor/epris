@@ -1,3 +1,5 @@
+import Epris from './epris';
+
 export type EprisConfig = {
     prefix: string;
 }
@@ -27,10 +29,20 @@ export type EprisObject = {
     el: string,
     state: State,
     actions: Actions,
-    effects: any,
+    effects: Effects,
 }
 
 export interface Element extends HTMLElement {
     on?: { [key: string]: EventListener }
     props?: { [key: string]: any }
+}
+
+export type UpdateData = {
+    rawValue: any,
+    propValue: string,
+    context: Epris,
+    propName: string,
+    propModifierName: string,
+    propModifierValue: string,
+    element: Element,
 }

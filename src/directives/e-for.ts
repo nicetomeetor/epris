@@ -1,13 +1,25 @@
-import { mutate } from '../parser/parse';
-import { regExpFor } from '../epris.regexp';
-import { removeAllChildNodes } from '../epris.helpers';
+import {
+    mutate,
+} from '../parser/parse';
+
+import {
+    regExpFor,
+} from '../epris.regexp';
+
+import {
+    removeAllChildNodes,
+} from '../epris.helpers';
+
+import {
+    UpdateData,
+} from '../epris.types';
 
 export default (
     {
         context,
         element,
         rawValue,
-    }: any,
+    }: UpdateData,
 ) => {
     const actions = context.actions;
     const state = context.state;
@@ -42,7 +54,7 @@ export default (
             effects,
         };
 
-        mutate(loopClone, loopContext);
+        mutate(loopClone as HTMLElement, loopContext);
 
         parent.insertBefore(loopClone, element);
     });

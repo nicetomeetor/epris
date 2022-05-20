@@ -1,4 +1,10 @@
-import { chainElementKeys } from '../parser/chain';
+import {
+    chainElementKeys,
+} from '../parser/chain';
+
+import {
+    UpdateData,
+} from '../epris.types';
 
 export default (
     {
@@ -7,7 +13,7 @@ export default (
         propModifierValue,
         element,
         propName,
-    }: any,
+    }: UpdateData,
 ) => {
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);

@@ -1,12 +1,21 @@
-import { mutate } from '../parser/parse';
-import { chainElementKeys } from '../parser/chain';
+import {
+    mutate,
+} from '../parser/parse';
+
+import {
+    chainElementKeys,
+} from '../parser/chain';
+
+import {
+    UpdateData,
+} from '../epris.types';
 
 export default (
     {
         rawValue,
         context,
         element,
-    }: any,
+    }: UpdateData,
 ) => {
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
