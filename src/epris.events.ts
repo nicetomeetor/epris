@@ -81,6 +81,9 @@ export const attachEvent = (
         event,
         {
             value,
+            writable: true,
+            enumerable: true,
+            configurable: true,
         }
     );
 };
