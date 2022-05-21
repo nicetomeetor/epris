@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-Todo</title>
+    </head>
+    <body>
+        <div id='app'>
+            <div e-if='addStatus'>
+                <input type='text' e-on:input='changeValue()' e-bind:value='value'>
+                <button e-on:click='addTodo()'>ADD</button>
+            </div>
+            <div e-else>
+                <input e-bind:value='updateObject.value' e-on:input='updateTodoValue()'>
+                <button e-on:click='saveTodo()'>SAVE</button>
+            </div>
+            <hr>
+            <h4>Unfinished</h4>
+            <div e-if='unfinishedStatus'>
+                <div class='todo' e-for='todo of unfinished'>
+                    <div>
+                        <input type='checkbox' e-bind:checked='todo.status' e-on:input='updateTodoStatus(todo.id)'>
+                        <span e-text='todo.value'></span>
+                    </div>
+                    <div>
+                        <button class='todo-delete' e-on:click='updateTodo(todo)'>UPDATE</button>
+                        <button class='todo-delete' e-on:click='deleteTodo(todo.id)'>DELETE</button>
+                    </div>
+                </div>
+            </div>
+            <div e-else>
+                Nothing
+            </div>
+            <hr>
+            <h4>Finished</h4>
+            <div e-if='finishedStatus'>
+                <div class='todo' e-for='todo of finished'>
+                    <div>
+                        <input type='checkbox' e-bind:checked='todo.status' e-on:input='updateTodoStatus(todo.id)'>
+                        <span e-text='todo.value'></span>
+                    </div>
+                    <div>
+                        <button class='todo-delete' e-on:click='updateTodo(todo)'>UPDATE</button>
+                        <button class='todo-delete' e-on:click='deleteTodo(todo.id)'>DELETE</button>
+                    </div>
+                </div>
+            </div>
+            <div e-else>
+                Empty
+            </div>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const todos = [
+        {
+            id: 1,
+            value: "Eat",
+            status: false,
+        },
+        {
+            id: 2,
+            value: "Sleep",
+            status: false,
+        },
+        {
+            id: 3,
+            value: "Do something",
+            status: false,
+        },
+    ];
+
+    const app = new Epris({
+        el: '#app',
+        state: {
+            value: "new todo",
+            todos: [],
+            addStatus: true,
+            updateObject: {
+                value: "",
+                id: null,
+            },
+            finished: [],
+            finishedStatus: false,
+            unfinished: [],
+            unfinishedStatus: false,
+        },
+        actions: {
+            deleteTodo(id) {
+                this.todos = this.todos.filter(todo => todo.id !== id);
+            },
+            changeValue(event) {
+                this.value = event.target.value;
+            },
+            addTodo() {
+                if (this.value.length > 0) {
+                    const id = this.todos.reduce((max, todo) => (todo.id > max ? todo.id : max), 0) + 1;
+                    this.todos.push({ id, value: this.value, status: false, });
+                    this.value = "";
+                }
+            },
+            updateTodo(todo) {
+                this.addStatus = false;
+                this.updateObject = {
+                    id: todo.id,
+                    value: todo.value,
+                };
+            },
+            updateTodoStatus(id) {
+                const todo = this.todos.find((elem) => elem.id === id);
+                todo.status = !todo.status;
+            },
+            updateTodoValue(event) {
+                this.updateObject.value = event.target.value;
+            },
+            saveTodo() {
+                this.addStatus = true;
+                const { id, value, } = this.updateObject;
+                const todo =  this.todos.find((elem) => elem.id === id);
+                todo.value = value;
+            },
+        },
+        effects: {
+            todos() {
+                this.unfinished = this.todo.filter(e => !(e.status));
+                this.finished = this.todo.filter(e => e.status);
+                this.unfinishedStatus = this.unfinished.length > 0;
+                this.finishedStatus = this.finished.length > 0;
+            },
+        },
+    });
+
+    app.todos = todos;
+</script>
