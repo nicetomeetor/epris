@@ -8,16 +8,12 @@
             <div>
                 <div e-text='value'></div>
                 <input type='text' e-on:input='changeValue()' e-bind:value='value'>
-                <button e-on:click='clearValue()'>
-                    CLEAR VALUE
-                </button>
+                <button e-on:click='clearValue()'>CLEAR VALUE</button>
             </div>
             <div>
                 <div e-text='tempValue'></div>
                 <input type='text' e-bind:value='otherValue' e-on:input='changeOtherValue()'>
-                <button e-on:click='changeTempValue()'>
-                    CHANGE TEMP
-                </button>
+                <button e-on:click='changeTempValue()'>CHANGE TEMP</button>
             </div>
         </div>
     </body>

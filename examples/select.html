@@ -14,6 +14,7 @@
                     <option value='Alex'>Alex</option>
                 </select>
             </div>
+            <div>
                 <div e-text='selectValueByFor'></div>
                 <select e-bind:value='selectValueByFor' e-on:change='changeSelectValueByFor()'>
                     <option e-for='option of options' e-bind:value='option' e-text='option'></option>
@@ -34,7 +35,7 @@
             options: [
                 "Little",
                 "Medium",
-                "Large"
+                "Large",
             ],
         },
         actions: {
