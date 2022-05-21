@@ -1,5 +1,6 @@
 import {
     addEvents,
+    removeEvents,
     updateEvents,
 } from './epris.events';
 
@@ -28,7 +29,7 @@ export const h = (
 export const mount = (
     node: VirtualNode,
     parentElement: HTMLElement,
-) => {
+): void => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
@@ -58,14 +59,15 @@ export const mount = (
     parentElement.appendChild(element);
 };
 
-export const unmount = (node: VirtualNode) => {
+export const unmount = (node: VirtualNode): void => {
+    removeEvents(node.el, node.on);
     node.el.parentNode.removeChild(node.el);
 };
 
 export const patch = (
     node: VirtualNode,
     newNode: VirtualNode,
-) => {
+): void => {
     updateEvents(node, newNode);
 
     if (node.tag !== newNode.tag) {

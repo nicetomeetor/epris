@@ -1,16 +1,15 @@
 import { Effects } from './epris.types';
 
-let globalEffect: Function = () => {
-};
+let globalEffect: Function = () => {};
+
 let effects: Effects = {};
 
-export const watchGlobalEffect = (f: Function) => {
+export const watchGlobalEffect = (f: Function): void => {
     globalEffect = f;
     f();
 };
 
-
-export const watchEffects = (effs: Effects) => {
+export const watchEffects = (effs: Effects): void => {
     effects = effs;
 };
 
