@@ -5,15 +5,34 @@
     </head>
     <body>
         <div id='app'>
-            <div e-if='status'>
-                Status
-            </div>
-            <div e-if='statusObject.status'>
-                Status Object
+            <div>
+                <div>State</div>
+                <div e-text='status'></div>
+                <div e-if='status'>
+                    Status
+                </div>
+                <div e-else>
+                    Not Status
+                </div>
             </div>
             <button e-on:click='changeStatus()'>
                 CHANGE STATUS
             </button>
+            <hr>
+            <div>
+                <div>Object state</div>
+                <div e-text='statusObject.status'></div>
+                <div e-if='statusObject.status'>
+                    Status Object
+                </div>
+                <div e-else>
+                    Not Status Object
+                </div>
+            </div>
+            <button e-on:click='changeObjectStatus()'>
+                CHANGE OBJECT STATUS
+            </button>
+            <hr>
         </div>
     </body>
 </html>
@@ -26,12 +45,14 @@
         state: {
             status: true,
             statusObject: {
-                status: false,
+                status: true,
             },
         },
         actions: {
             changeStatus() {
                 this.status = !this.status;
+            },
+            changeObjectStatus() {
                 this.statusObject.status = !this.statusObject.status;
             },
         },
