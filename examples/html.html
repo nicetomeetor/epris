@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-Html</title>
+    </head>
+    <body>
+        <div>Epris app</div>
+        <div id='app'>
+            <div e-html='htmlString'></div>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const htmlString = '<h1> Hello, world </h1>';
+
+    const app = new Epris({
+        el: '#app',
+        state: {
+            htmlString,
+        },
+    });
+</script>
