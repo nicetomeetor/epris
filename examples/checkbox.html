@@ -1,0 +1,44 @@
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Epris-Checkbox</title>
+</head>
+<body>
+    <div id='app'>
+        <div>
+            <div e-text='checkboxValue'></div>
+            <input type='checkbox' e-bind:checked='checkboxValue' e-on:input='changeCheckboxValue()'>
+        </div>
+        <div>
+            <div e-text='value'></div>
+            <input type='checkbox' e-bind:checked='value' e-on:input='changeValue()'>
+        </div>
+        <button e-on:click='makeFalsy()'>
+            MAKE FALSY
+        </button>
+    </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            checkboxValue: false,
+            value: false,
+        },
+        actions: {
+            changeCheckboxValue(event) {
+                this.checkboxValue = event.target.checked;
+            },
+            changeValue(event) {
+                this.value = event.target.checked;
+            },
+            makeFalsy() {
+                this.value = false;
+            },
+        },
+    });
+</script>

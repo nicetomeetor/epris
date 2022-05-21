@@ -1,0 +1,51 @@
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Epris-Textarea</title>
+</head>
+<body>
+<div id='app'>
+    <div>
+        <div e-text='value'></div>
+        <textarea e-on:input='changeValue()' e-bind:value='value'></textarea>
+        <button e-on:click='clearValue()'>
+            CLEAR VALUE
+        </button>
+    </div>
+    <div>
+        <div e-text='tempValue'></div>
+        <textarea type='text' e-bind:value='otherValue' e-on:input='changeOtherValue()'></textarea>
+        <button e-on:click='changeTempValue()'>
+            CHANGE TEMP
+        </button>
+    </div>
+</div>
+</body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            value: 'value',
+            otherValue: 'otherValue',
+            tempValue: 'otherValue',
+        },
+        actions: {
+            changeValue(event) {
+                this.value = event.target.value;
+            },
+            changeOtherValue(event) {
+                this.otherValue = event.target.value;
+            },
+            changeTempValue() {
+                this.tempValue = this.otherValue;
+            },
+            clearValue() {
+                this.value = '';
+            },
+        },
+    });
+</script>
