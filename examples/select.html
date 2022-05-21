@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-Select</title>
+    </head>
+    <body>
+        <div id='app'>
+            <div>
+                <div e-text='selectValue'></div>
+                <select e-bind:value='selectValue' e-on:change='changeSelectValue()'>
+                    <option value='Michael'>Michael</option>
+                    <option value='Den'>Den</option>
+                    <option value='Daniel'>Daniel</option>
+                    <option value='Alex'>Alex</option>
+                </select>
+            </div>
+                <div e-text='selectValueByFor'></div>
+                <select e-bind:value='selectValueByFor' e-on:change='changeSelectValueByFor()'>
+                    <option e-for='option of options' e-bind:value='option' e-text='option'></option>
+                </select>
+            </div>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const app = new Epris({
+        el: '#app',
+        state: {
+            selectValue: "Michael",
+            selectValueByFor: "Little",
+            options: [
+                "Little",
+                "Medium",
+                "Large"
+            ],
+        },
+        actions: {
+            changeSelectValue(event) {
+                this.selectValue = event.target.value;
+            },
+            changeSelectValueByFor(event) {
+                this.selectValueByFor = event.target.value;
+            },
+        },
+    });
+</script>
