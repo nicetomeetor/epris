@@ -1,17 +1,18 @@
 {
   "name": "epris",
-  "version": "0.0.1",
-  "description": "\"\"",
-  "private": true,
+  "version": "0.1.0",
+  "description": "A JavaScript library that simplifies interface development.\n",
+  "private": false,
   "scripts": {
     "serve": "webpack-dev-server --config webpack.config.ts",
-    "start": "webpack serve --config webpack.config.ts"
+    "start": "webpack serve --config webpack.config.ts",
+    "build": "webpack build --config webpack.config.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nicetomeetor/epris.git"
   },
-  "author": "nicetomeetor",
+  "author": "Michael Lutsiv",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/nicetomeetor/epris/issues"
