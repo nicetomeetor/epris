@@ -1,28 +1,46 @@
 import eText from './directives/e-text';
 import eIf from './directives/e-if';
 import eFor from './directives/e-for';
-import eBind from './directives/e-bind'
-
+import eBind from './directives/e-bind';
+import eHTML from './directives/e-html';
 import config from './epris.config';
 
-const addPrefix = (directive: string): string => config.prefix + directive;
+import {
+    createFuncsObject,
+} from './epris.helpers';
 
-const directives = [
+import {
+    UpdateData,
+} from './epris.types';
+
+const addPrefix = (directiveName: string): string => config.prefix + directiveName;
+
+const directivesNames: string[] = [
     'text',
     'if',
     'for',
     'bind',
+    'html',
 ].map(addPrefix);
 
-const directivesFunc: {[key: string]: Function} = {
-    'e-text': eText,
-    'e-if': eIf,
-    'e-for': eFor,
-    'e-bind': eBind
-};
+const directivesFuncs: Function[] = [
+    eText,
+    eIf,
+    eFor,
+    eBind,
+    eHTML,
+];
 
-export const isDirective = (directive: string) => directives.includes(directive);
+const directives: { [key: string]: Function } = createFuncsObject(
+    directivesNames,
+    directivesFuncs,
+);
 
-export const useDirective = (prop: string, data: any) => directivesFunc[prop](data)
+export const isDirective = (directive: string): boolean => directivesNames.includes(directive);
+
+export const useDirective = (
+    prop: string,
+    data: UpdateData,
+): void => directives[prop](data);
 
 

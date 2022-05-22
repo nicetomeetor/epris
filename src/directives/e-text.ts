@@ -1,6 +1,18 @@
-import { chainElementKeys } from '../epris.parser';
+import {
+    chainElementKeys,
+} from '../parser/chain';
 
-export default ({rawValue, context, node}: any) => {
+import {
+    UpdateData,
+} from '../epris.types';
+
+export default (
+    {
+        rawValue,
+        context,
+        element,
+    }: UpdateData,
+) => {
     const state = context.state;
-    node.innerText = chainElementKeys(rawValue, state);
+    element.innerText = chainElementKeys(rawValue, state);
 }

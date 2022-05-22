@@ -1,9 +1,6 @@
 import Epris from './epris';
-import config from './epris.config';
 
-const prefix = config.prefix + 'on:';
-
-export const defineActionProperties = (context: Epris) => {
+export const defineActionProperties = (context: Epris): void => {
     Object
         .entries(context.actions)
         .forEach(([name, func]) => {
@@ -14,9 +11,17 @@ export const defineActionProperties = (context: Epris) => {
                     value: func,
                 });
         });
-}
+};
 
-export const defineStateProperties = (context: Epris) => {
+export const bindEffects = (context: Epris): void => {
+    Object
+        .entries(context.effects)
+        .forEach(([name, func]) => {
+            context.effects[name] = func.bind(context);
+        });
+};
+
+export const defineStateProperties = (context: Epris): void => {
     Object
         .keys(context.state)
         .forEach((key) => {
@@ -31,5 +36,36 @@ export const defineStateProperties = (context: Epris) => {
                     },
                 });
         });
-}
+};
+
+export const removeAllChildNodes = (parent: Element): void => {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+};
+
+export const detectBoolean = (str: string): string | boolean => {
+    switch (str) {
+        case 'true':
+            return true;
+        case 'false':
+            return false;
+        default:
+            return str;
+    }
+};
+
+export const createFuncsObject = (
+    names: string[],
+    funcs: Function[],
+): { [key: string]: Function } => {
+    const result: { [key: string]: Function } = {};
+
+    for (let i = 0; i < names.length; i++) {
+        result[names[i]] = funcs[i];
+    }
+
+    return result;
+};
+
 

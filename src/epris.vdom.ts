@@ -1,53 +1,73 @@
-import { addEvents, updateEvents } from './epris.events';
-import { VirtualNode } from './epris.types';
-import { control } from './epris.forms';
+import {
+    addEvents,
+    removeEvents,
+    updateEvents,
+} from './epris.events';
+
+import {
+    VirtualNode,
+} from './epris.types';
+
+import {
+    control,
+} from './epris.forms';
 
 export const h = (
     tag: string,
     props: { [key: string]: string },
     children: Array<VirtualNode> | string,
-    on: { [key: string]: EventListener }
+    on: { [key: string]: EventListener },
 ): VirtualNode => {
     return {
         tag,
         props,
         children,
-        on
+        on,
     };
 };
 
-export const mount = (node: VirtualNode, container: HTMLElement) => {
+export const mount = (
+    node: VirtualNode,
+    parentElement: HTMLElement,
+): void => {
     const tag = node.tag;
     const props = node.props;
     const children = node.children;
-    const on = node.on;
+    const on = node.on || {};
 
-    const el = document.createElement(tag);
+    const element = document.createElement(tag);
 
-    addEvents(el, on);
+    addEvents(element, on);
 
     for (const key in props) {
-        el.setAttribute(key, props[key]);
+        element.setAttribute(key, props[key]);
     }
 
     if (typeof children == 'string') {
-        el.textContent = children;
+        element.textContent = children;
     } else {
         children
             .forEach(child => {
-                mount(child, el);
+                mount(child, element);
             });
     }
 
-    node.el = el;
-    container.appendChild(el);
+    node.el = element;
+
+    control(node);
+
+    parentElement.appendChild(element);
 };
 
-export const unmount = (node: VirtualNode) => {
+export const unmount = (node: VirtualNode): void => {
+    removeEvents(node.el, node.on);
     node.el.parentNode.removeChild(node.el);
 };
 
-export const patch = (node: VirtualNode, newNode: VirtualNode) => {
+export const patch = (
+    node: VirtualNode,
+    newNode: VirtualNode,
+): void => {
     updateEvents(node, newNode);
 
     if (node.tag !== newNode.tag) {
@@ -93,5 +113,5 @@ export const patch = (node: VirtualNode, newNode: VirtualNode) => {
         }
     }
 
-    control(newNode)
+    control(newNode);
 };

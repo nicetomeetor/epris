@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Epris-Effects</title>
+    </head>
+    <body>
+        <div id='app'>
+            <button e-on:click='addRandomNumber()'>ADD RANDOM</button>
+            <button e-on:click='deleteRandomNumber()'>DELETE RANDOM</button>
+            <hr>
+            <div e-text='sum'></div>
+            <hr>
+            <div e-for='number of numbers' e-text='number'></div>
+        </div>
+    </body>
+</html>
+
+<script src='../dist/epris.bundle.js'></script>
+
+<script>
+    const generateRandomNumber = (max) => Math.floor(Math.random() * max);
+    const calculateNumbers = (nums) => nums.reduce((a, b) => a + b, 0);
+
+    const maxValue = 100;
+    const numbers = [1, 2, 3];
+    const sum = calculateNumbers(numbers);
+
+    const app = new Epris({
+        el: '#app',
+        state: {
+            numbers,
+            sum,
+        },
+        actions: {
+            addRandomNumber() {
+                this.numbers.push(generateRandomNumber(maxValue));
+            },
+            deleteRandomNumber() {
+                this.numbers.splice(generateRandomNumber(this.numbers.length), 1);
+            },
+        },
+        effects: {
+            numbers() {
+                console.log('The numbers have changed!');
+                this.sum = calculateNumbers(this.numbers);
+            },
+        },
+    });
+</script>

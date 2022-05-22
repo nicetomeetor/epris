@@ -1,15 +1,31 @@
-import { mutate } from '../epris.parser';
-import { regExpFor } from '../epris.regexp';
+import {
+    mutate,
+} from '../parser/parse';
+
+import {
+    regExpFor,
+} from '../epris.regexp';
+
+import {
+    removeAllChildNodes,
+} from '../epris.helpers';
+
+import {
+    UpdateData,
+} from '../epris.types';
 
 export default (
     {
         context,
-        node,
+        element,
         rawValue,
-    }: any
+    }: UpdateData,
 ) => {
     const actions = context.actions;
     const state = context.state;
+    const effects = context.effects;
+
+    const clone = element.cloneNode(true);
 
     const split = rawValue.data.match(regExpFor);
 
@@ -17,30 +33,32 @@ export default (
     const arrayKey = split[2];
     const array = state[arrayKey];
 
-    const parent = node.parentElement;
+    const parent = element.parentElement;
 
-    array.forEach((element: any) => {
-        const clone = node.cloneNode(true);
+    array.forEach((elem: any) => {
+        const loopClone = clone.cloneNode(true);
         const loopState = {};
 
         Object.defineProperty(loopState, key, {
-            value: element,
+            value: elem,
             writable: true,
             enumerable: true,
             configurable: true,
         });
 
-        Object.assign(loopState, context.state)
+        Object.assign(loopState, context.state);
 
         const loopContext = {
             state: loopState,
-            actions
-        }
+            actions,
+            effects,
+        };
 
-        mutate(clone, loopContext)
+        mutate(loopClone as HTMLElement, loopContext);
 
-        parent.insertBefore(clone, node);
+        parent.insertBefore(loopClone, element);
     });
 
-    parent.removeChild(node);
+    removeAllChildNodes(element);
+    parent.removeChild(element);
 }

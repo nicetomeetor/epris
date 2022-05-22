@@ -1,4 +1,10 @@
-import { VirtualNode } from './epris.types';
+import {
+    VirtualNode,
+} from './epris.types';
+
+import {
+    ControlledElement,
+} from './epris.interfaces';
 
 enum ElementType {
     INPUT = 'INPUT',
@@ -13,23 +19,17 @@ const controlledTags = [
 ];
 
 const findType = (node: VirtualNode) => {
-    const { props, tag, el } = node;
-    
-    switch (tag as ElementType) {
-        case ElementType.INPUT:
-            const type = props.type;
-            if (type === 'checkbox') {
-                (<HTMLInputElement>(el)).checked = props.checked;
-            } else {
-                (<HTMLInputElement>(el)).value = props.value;
-            }
-            break;
-        case ElementType.TEXTAREA:
-            (<HTMLTextAreaElement>(el)).value = props.value;
-            break;
-        case ElementType.SELECT:
-            (<HTMLSelectElement>(el)).value = props.value;
-            break;
+    const {
+        props,
+        el,
+    } = node;
+
+    const controlledElement = (<ControlledElement>(el));
+
+    if (props.type === 'checkbox') {
+        controlledElement.checked = props.checked;
+    } else {
+        controlledElement.value = props.value;
     }
 };
 
