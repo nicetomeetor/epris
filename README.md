@@ -102,7 +102,7 @@ Using directives, you can display the interface in a certain state.
 **e-if** and **e-else** show element depending on the state.
 
 ```html
-<div e-if='object.status'>200</div>
+<div e-if='status'>200</div>
 <div e-else>404</div>
 ```
 
