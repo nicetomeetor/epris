@@ -12,7 +12,6 @@ let effects: Effects = {};
 
 export const watchGlobalEffect = (f: Function): void => {
     globalEffect = f;
-    f();
 };
 
 export const watchEffects = (effs: Effects): void => {
