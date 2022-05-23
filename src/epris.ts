@@ -18,6 +18,7 @@ import {
     bindEffects,
     defineActionProperties,
     defineStateProperties,
+    isObject,
 } from './epris.helpers';
 
 import {
@@ -35,9 +36,9 @@ export default class Epris {
     effects: Effects;
 
     constructor(object: EprisObject) {
-        this.state = reactive(object.state);
-        this.actions = object.actions || {};
-        this.effects = object.effects || {};
+        this.state = isObject(object.state) ? reactive(object.state) : {};
+        this.actions = isObject(object.actions) ? object.actions : {};
+        this.effects = isObject(object.effects) ? object.effects : {};
 
         defineActionProperties(this);
         defineStateProperties(this);

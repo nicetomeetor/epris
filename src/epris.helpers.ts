@@ -68,4 +68,6 @@ export const createFuncsObject = (
     return result;
 };
 
+export const isObject = (object: any) => typeof object === 'object' && object !== null;
+
 
