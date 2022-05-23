@@ -3,6 +3,7 @@ import Epris from './epris';
 export const defineActionProperties = (context: Epris): void => {
     Object
         .entries(context.actions)
+        // .filter(([name, func]) => isFunc(func))
         .forEach(([name, func]) => {
             context.actions[name] = func.bind(context);
             Object
@@ -16,6 +17,7 @@ export const defineActionProperties = (context: Epris): void => {
 export const bindEffects = (context: Epris): void => {
     Object
         .entries(context.effects)
+        // .filter(([name, func]) => isFunc(func))
         .forEach(([name, func]) => {
             context.effects[name] = func.bind(context);
         });
@@ -69,5 +71,9 @@ export const createFuncsObject = (
 };
 
 export const isObject = (object: any) => typeof object === 'object' && object !== null;
+
+const isFunc = (value: any) => typeof value === 'function';
+
+export const filterFuncs = (object: any) => Object.fromEntries(Object.entries(object).filter(([_, func]) => isFunc(func)));
 
 
