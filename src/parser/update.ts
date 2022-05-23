@@ -63,27 +63,19 @@ const updateOn = (
     );
 };
 
-const updateDirective = (
-    {
+const updateDirective = (data: UpdateData): void => {
+    const {
         propValue,
-        context,
-        element,
-        propName,
         propModifierName,
-        propModifierValue,
-    }: UpdateData,
-): void => {
+    } = data;
+
     const rawValue: ChainData = parseDirective(propValue);
 
     useDirective(
         propModifierName,
         {
+            ...data,
             rawValue,
-            element,
-            context,
-            propModifierValue,
-            propModifierName,
-            propName,
         },
     );
 };
