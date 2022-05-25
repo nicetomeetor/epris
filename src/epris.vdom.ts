@@ -29,6 +29,7 @@ export const h = (
 export const mount = (
     node: VirtualNode,
     parentElement: HTMLElement,
+    status: boolean = false,
 ): void => {
     const tag = node.tag;
     const props = node.props;
@@ -56,7 +57,9 @@ export const mount = (
 
     control(node);
 
-    parentElement.appendChild(element);
+    if (!status) {
+        parentElement.appendChild(element);
+    }
 };
 
 export const unmount = (node: VirtualNode): void => {
@@ -71,8 +74,8 @@ export const patch = (
     updateEvents(node, newNode);
 
     if (node.tag !== newNode.tag) {
-        mount(newNode, node.el.parentElement);
-        unmount(node);
+        mount(newNode, node.el.parentElement, true);
+        node.el.parentNode.replaceChild(newNode.el, node.el);
     } else {
         newNode.el = node.el;
 
