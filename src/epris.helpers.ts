@@ -1,5 +1,9 @@
 import Epris from './epris';
 
+import {
+    mutate,
+} from './parser/parse';
+
 export const defineActionProperties = (context: Epris): void => {
     Object
         .entries(context.actions)
@@ -66,6 +70,22 @@ export const createFuncsObject = (
     }
 
     return result;
+};
+
+export const isObject = (object: any) => typeof object === 'object' && object !== null;
+
+const isFunc = (value: any) => typeof value === 'function';
+
+export const filterFuncs = (object: any) => Object.fromEntries(Object.entries(object).filter(([_, func]) => isFunc(func)));
+
+export const mutateElement = (
+    element: HTMLElement,
+    context: Epris,
+): HTMLElement => {
+    const mutatedElement = element.cloneNode(true) as HTMLElement;
+    mutate(mutatedElement, context);
+
+    return mutatedElement;
 };
 
 

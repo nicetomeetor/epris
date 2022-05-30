@@ -1,5 +1,10 @@
 import {
+    chainElementKeys,
+} from '../parser/chain';
+
+import {
     mutate,
+    parseDirective,
 } from '../parser/parse';
 
 import {
@@ -18,46 +23,45 @@ export default (
     {
         context,
         element,
-        rawValue,
+        propValue,
     }: UpdateData,
-) => {
-    const actions = context.actions;
-    const state = context.state;
-    const effects = context.effects;
+): void => {
+    const state = Object.assign({}, context.state);
 
     const clone = element.cloneNode(true);
 
-    const split = rawValue.data.match(regExpFor);
-
+    const split = propValue.match(regExpFor);
     const key = split[1];
-    const arrayKey = split[2];
-    const array = state[arrayKey];
+    const rawArray = split[2];
+
+    const array = chainElementKeys(
+        parseDirective(rawArray),
+        state,
+    );
+    const n = (array).length;
 
     const parent = element.parentElement;
 
-    array.forEach((elem: any) => {
+    for (let i = 0; i < n; i++) {
         const loopClone = clone.cloneNode(true);
-        const loopState = {};
 
-        Object.defineProperty(loopState, key, {
-            value: elem,
-            writable: true,
-            enumerable: true,
-            configurable: true,
-        });
-
-        Object.assign(loopState, context.state);
+        state[key] = array[i];
 
         const loopContext = {
-            state: loopState,
-            actions,
-            effects,
+            ...context,
+            state,
         };
 
-        mutate(loopClone as HTMLElement, loopContext);
+        mutate(
+            loopClone as HTMLElement,
+            loopContext,
+        );
 
-        parent.insertBefore(loopClone, element);
-    });
+        parent.insertBefore(
+            loopClone,
+            element,
+        );
+    }
 
     removeAllChildNodes(element);
     parent.removeChild(element);

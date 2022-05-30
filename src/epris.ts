@@ -4,7 +4,6 @@ import {
 } from './epris.vdom';
 
 import {
-    mutate,
     parse,
 } from './parser/parse';
 
@@ -18,6 +17,9 @@ import {
     bindEffects,
     defineActionProperties,
     defineStateProperties,
+    isObject,
+    filterFuncs,
+    mutateElement,
 } from './epris.helpers';
 
 import {
@@ -35,9 +37,9 @@ export default class Epris {
     effects: Effects;
 
     constructor(object: EprisObject) {
-        this.state = reactive(object.state);
-        this.actions = object.actions || {};
-        this.effects = object.effects || {};
+        this.state = isObject(object.state) ? reactive(object.state) : {};
+        this.actions = isObject(object.actions) ? filterFuncs(object.actions) as Actions : {};
+        this.effects = isObject(object.effects) ? filterFuncs(object.effects) as Effects : {};
 
         defineActionProperties(this);
         defineStateProperties(this);
@@ -47,21 +49,20 @@ export default class Epris {
 
         this.el = document.querySelector(object.el);
 
-        let parsedNode: VirtualNode;
+        const mutatedElement = mutateElement(this.el, this);
+
+        let parsedNode: VirtualNode = parse(mutatedElement);
+        mount(parsedNode, mutatedElement);
+
+        this.el.parentNode.replaceChild(parsedNode.el, this.el);
 
         watchGlobalEffect(() => {
-            const newEl = this.el.cloneNode(true);
-            mutate(newEl as HTMLElement, this);
+            const mutatedElement = mutateElement(this.el, this);
 
-            if (!parsedNode) {
-                parsedNode = parse(newEl as HTMLElement);
-                mount(parsedNode, newEl as HTMLElement);
-                this.el.parentNode.replaceChild(parsedNode.el, this.el);
-            } else {
-                const newNode = parse(newEl as HTMLElement);
-                patch(parsedNode, newNode);
-                parsedNode = newNode;
-            }
+            const newNode = parse(mutatedElement);
+            patch(parsedNode, newNode);
+
+            parsedNode = newNode;
         });
     }
 };

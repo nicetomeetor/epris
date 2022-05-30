@@ -12,7 +12,7 @@ export default (
         context,
         element,
     }: UpdateData,
-) => {
+): void => {
     const state = context.state;
     element.innerText = chainElementKeys(rawValue, state);
 }

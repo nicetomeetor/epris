@@ -14,7 +14,7 @@ export default (
         element,
         propName,
     }: UpdateData,
-) => {
+): void => {
     const state = context.state;
     const parsedValue = chainElementKeys(rawValue, state);
 

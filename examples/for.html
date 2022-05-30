@@ -13,6 +13,10 @@
                 <div e-text='object.id'></div>
                 <div e-text='object.name'></div>
             </div>
+            <hr>
+            <div e-for='number of object.numbers'>
+                <div e-text='number'></div>
+            </div>
         </div>
     </body>
 </html>
@@ -28,6 +32,10 @@
                 {id: 0, name: 'Michael'},
                 {id: 1, name: 'Den'},
             ],
+            object: {
+                numbers: [1, 2, 3],
+                value: 42,
+            },
         },
     });
 </script>

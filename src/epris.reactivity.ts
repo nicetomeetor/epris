@@ -1,4 +1,10 @@
-import { Effects } from './epris.types';
+import {
+    Effects,
+} from './epris.types';
+
+import {
+   isObject,
+} from './epris.helpers'
 
 let globalEffect: Function = () => {};
 
@@ -6,7 +12,6 @@ let effects: Effects = {};
 
 export const watchGlobalEffect = (f: Function): void => {
     globalEffect = f;
-    f();
 };
 
 export const watchEffects = (effs: Effects): void => {
@@ -17,7 +22,7 @@ export const reactive = (
     object: { [key: string]: any },
     parent: any = null,
 ): Object => {
-    if (object === null || typeof object !== 'object') {
+    if (!isObject(object)) {
         return object;
     }
 
